@@ -227,6 +227,34 @@
       margin-bottom: 20px;
     }
 
+    
+    .brand-mark {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--steel);
+      padding: 8px 14px;
+      border: 1px solid rgba(61, 219, 217, 0.4);
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(61, 219, 217, 0.4), transparent);
+      transform: translateX(-120%);
+      animation: sweep 3s ease-in-out infinite;
+    }
+
+    .brand-mark span {
+      position: relative;
+      z-index: 1;
+    }
+
     .top-bar .chip {
       display: inline-flex;
       align-items: center;
@@ -547,6 +575,12 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(14px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes sweep {
+      0% { transform: translateX(-120%); }
+      50% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
     }
 
     @keyframes pulse {
@@ -1324,7 +1358,10 @@
         <div class="container">
           <div class="top-bar glass-panel">
             <div class="chip">Command Center</div>
-            <button onclick="logout()">Logout</button>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="brand-mark"><span>RateYourTeacher</span></div>
+              <button onclick="logout()">Logout</button>
+            </div>
           </div>
           <h1>Admin Dashboard</h1>
 
