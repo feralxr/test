@@ -105,7 +105,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 24px clamp(280px, 38vw, 560px) 24px 24px;
       position: relative;
       z-index: 1;
     }
@@ -198,93 +198,53 @@
       animation: popIn 0.6s ease;
     }
 
-    .console-panel {
+
+    .side-terminal {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(38vw, 520px);
+      background: rgba(5, 8, 14, 0.96);
+      border-left: 1px solid rgba(61, 219, 217, 0.35);
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .side-terminal.pipes::before {
+      content: '';
       position: absolute;
-      top: 140px;
-      right: 80px;
-      width: min(420px, 36vw);
-      padding: 24px;
-      border-radius: 16px;
-      border: 1px solid rgba(61, 219, 217, 0.35);
-      background: rgba(6, 9, 16, 0.85);
-      color: var(--steel);
+      inset: 0;
+      background:
+        linear-gradient(to right, rgba(61, 219, 217, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(61, 219, 217, 0.2) 2px, transparent 2px);
+      background-size: 48px 48px;
+      opacity: 0.45;
+    }
+
+    .side-terminal.pipes::after {
+      content: '';
+      position: absolute;
+      inset: -50% 0 0 0;
+      background:
+        repeating-linear-gradient(90deg, rgba(61, 219, 217, 0.4) 0 8px, transparent 8px 60px),
+        repeating-linear-gradient(0deg, rgba(61, 219, 217, 0.3) 0 12px, transparent 12px 72px);
+      animation: pipesFlow 10s linear infinite;
+      opacity: 0.6;
+    }
+
+    .side-terminal .pipe-text {
+      position: absolute;
+      inset: 24px 24px 24px 24px;
       font-family: 'Space Mono', monospace;
       font-size: 12px;
-      line-height: 1.7;
+      color: rgba(61, 219, 217, 0.5);
+      letter-spacing: 0.22em;
+      line-height: 1.6;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      box-shadow: 0 25px 60px rgba(5, 7, 12, 0.6);
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .console-panel::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(61, 219, 217, 0.08),
-        rgba(61, 219, 217, 0.08) 2px,
-        transparent 2px,
-        transparent 6px
-      );
-      opacity: 0.35;
-      pointer-events: none;
-    }
-
-    .console-panel::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, transparent, rgba(61, 219, 217, 0.25), transparent);
-      transform: translateX(-120%);
-      animation: scan 4s ease-in-out infinite;
-    }
-
-    .console-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      font-size: 11px;
-      color: var(--steel-muted);
-    }
-
-    .console-lines {
-      display: grid;
-      gap: 8px;
-    }
-
-    .console-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .console-line span:last-child {
-      color: var(--signal);
-    }
-
-    .console-glitch {
-      position: relative;
-    }
-
-    .console-glitch::before,
-    .console-glitch::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      opacity: 0.6;
-      clip-path: inset(0 0 70% 0);
-      animation: glitch 2.4s infinite ease-in-out;
-    }
-
-    .console-glitch::after {
-      clip-path: inset(70% 0 0 0);
-      animation-delay: 1.2s;
+      animation: pipesFlicker 5s ease-in-out infinite;
+      opacity: 0.7;
     }
 
     .auth-title {
@@ -882,23 +842,34 @@
       80% { transform: translate(1px, -2px); }
     }
 
+    @keyframes pipesFlow {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(40%); }
+    }
+
+    @keyframes pipesFlicker {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 900px) {
+      .side-terminal {
+        display: none;
+      }
+
+
       .auth-page {
         justify-content: center;
         padding: 40px 20px;
       }
 
-      .console-panel {
-        position: relative;
-        top: auto;
-        right: auto;
-        width: auto;
-        margin: 0 24px 32px;
+      .container {
+        padding-right: 24px;
       }
 
       .teachers-grid {
@@ -926,6 +897,20 @@
     <span></span>
     <span></span>
     <span></span>
+  </div>
+  <div class="side-terminal pipes" aria-hidden="true">
+    <div class="pipe-text">
+      pipeline grid
+      signal routing
+      token flow
+      queue aligned
+      transport layer
+      relay online
+      cache valid
+      stream active
+      node sync
+      system steady
+    </div>
   </div>
   <div id="app"></div>
 
@@ -1104,19 +1089,6 @@
               <button type="button" class="btn btn-secondary" id="register-btn">Create Account</button>
             </form>
           </div>
-          <div class="console-panel">
-            <div class="console-header">
-              <span>System Console</span>
-              <span>Live</span>
-            </div>
-            <div class="console-lines">
-              <div class="console-line"><span>Identity Node</span><span>Ready</span></div>
-              <div class="console-line"><span>Signal Relay</span><span>Online</span></div>
-              <div class="console-line console-glitch" data-text="Feedback Loop"><span>Feedback Loop</span><span>Stable</span></div>
-              <div class="console-line"><span>Session Grid</span><span>Locked</span></div>
-              <div class="console-line"><span>Message Bus</span><span>Aligned</span></div>
-            </div>
-          </div>
         </div>
         <footer class="footer">
           <div class="footer-grid">
@@ -1182,19 +1154,6 @@
               </div>
               <button type="submit" class="btn">Complete Setup</button>
             </form>
-          </div>
-          <div class="console-panel">
-            <div class="console-header">
-              <span>Setup Console</span>
-              <span>Live</span>
-            </div>
-            <div class="console-lines">
-              <div class="console-line"><span>Roster Scan</span><span>Active</span></div>
-              <div class="console-line"><span>Class Sync</span><span>Pending</span></div>
-              <div class="console-line console-glitch" data-text="Profile Index"><span>Profile Index</span><span>Stable</span></div>
-              <div class="console-line"><span>Security Gate</span><span>Ready</span></div>
-              <div class="console-line"><span>Signal Link</span><span>Aligned</span></div>
-            </div>
           </div>
         </div>
         <footer class="footer">
@@ -1271,19 +1230,6 @@
           </div>
         </div>
 
-        <div class="console-panel" style="position: fixed; top: 160px; right: 80px;">
-          <div class="console-header">
-            <span>Activity Feed</span>
-            <span>Live</span>
-          </div>
-          <div class="console-lines">
-            <div class="console-line"><span>Teacher Index</span><span>Updated</span></div>
-            <div class="console-line"><span>Rating Stream</span><span>Active</span></div>
-            <div class="console-line console-glitch" data-text="Discussion Sync"><span>Discussion Sync</span><span>Stable</span></div>
-            <div class="console-line"><span>Review Cache</span><span>Aligned</span></div>
-            <div class="console-line"><span>Session Pulse</span><span>Nominal</span></div>
-          </div>
-        </div>
         <div id="teacher-modal" class="modal"></div>
         <footer class="footer">
           <div class="footer-grid">
