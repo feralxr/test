@@ -105,7 +105,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 24px clamp(280px, 38vw, 560px) 24px 24px;
+      padding: 24px clamp(320px, 44vw, 680px) 24px 24px;
       position: relative;
       z-index: 1;
     }
@@ -204,34 +204,12 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: min(38vw, 520px);
+      width: min(44vw, 640px);
       background: rgba(5, 8, 14, 0.96);
       border-left: 1px solid rgba(61, 219, 217, 0.35);
       overflow: hidden;
       pointer-events: none;
       z-index: 0;
-    }
-
-    .side-terminal.pipes::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(to right, rgba(61, 219, 217, 0.25) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(61, 219, 217, 0.2) 2px, transparent 2px);
-      background-size: 48px 48px;
-      opacity: 0.45;
-    }
-
-    .side-terminal.pipes::after {
-      content: '';
-      position: absolute;
-      inset: -50% 0 0 0;
-      background:
-        repeating-linear-gradient(90deg, rgba(61, 219, 217, 0.4) 0 8px, transparent 8px 60px),
-        repeating-linear-gradient(0deg, rgba(61, 219, 217, 0.3) 0 12px, transparent 12px 72px);
-      animation: pipesFlow 10s linear infinite;
-      opacity: 0.6;
     }
 
     .side-terminal canvas {
@@ -835,16 +813,6 @@
       40% { transform: translate(2px, 1px); }
       60% { transform: translate(-1px, 2px); opacity: 0.6; }
       80% { transform: translate(1px, -2px); }
-    }
-
-    @keyframes pipesFlow {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(40%); }
-    }
-
-    @keyframes pipesFlicker {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.8; }
     }
 
     @keyframes pulse {
