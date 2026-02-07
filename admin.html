@@ -111,7 +111,7 @@
       z-index: 1;
       max-width: 1400px;
       margin: 0 auto;
-      padding: 32px clamp(280px, 38vw, 560px) 80px 24px;
+      padding: 32px 24px 80px;
     }
 
     h1, h2, h3 {
@@ -143,47 +143,31 @@
     }
 
 
-    .side-terminal {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: min(38vw, 520px);
-      background: rgba(5, 8, 14, 0.96);
-      border-left: 1px solid rgba(61, 219, 217, 0.35);
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 0;
+    .admin-shell {
+      display: grid;
+      grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
     }
 
-    .side-terminal.matrix::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        repeating-linear-gradient(to right, rgba(61, 219, 217, 0.2) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(to bottom, rgba(61, 219, 217, 0.18) 0 2px, transparent 2px 36px);
-      opacity: 0.45;
+    .admin-nav {
+      padding: 20px;
+      position: sticky;
+      top: 24px;
     }
 
-    .side-terminal.matrix::after {
-      content: '';
-      position: absolute;
-      inset: -200% 0 0 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(61, 219, 217, 0.35) 0 10px,
-        transparent 10px 22px
-      );
-      animation: matrixFall 12s linear infinite;
-      opacity: 0.6;
-      mix-blend-mode: screen;
+    .nav-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--steel-muted);
+      margin-bottom: 16px;
     }
 
-    .side-terminal canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
+    .admin-main {
+      display: grid;
+      gap: 24px;
     }
 
     .form-group {
@@ -323,22 +307,24 @@
 
     .tabs {
       display: flex;
+      flex-direction: column;
       gap: 10px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
+      margin-bottom: 0;
     }
 
     .tab {
-      padding: 12px 22px;
+      padding: 12px 16px;
       background: rgba(8, 12, 20, 0.8);
       color: var(--steel-muted);
       border: 1px solid transparent;
-      border-radius: 999px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 12px;
       transition: all 0.2s ease;
       text-transform: uppercase;
       letter-spacing: 0.12em;
+      text-align: left;
+      width: 100%;
     }
 
     .tab.active {
@@ -355,6 +341,10 @@
     .tab-content {
       display: none;
       animation: fadeUp 0.4s ease;
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(61, 219, 217, 0.2);
+      background: rgba(9, 12, 20, 0.85);
     }
 
     .tab-content.active {
@@ -364,6 +354,18 @@
     .card {
       padding: 22px;
       margin-bottom: 20px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+      margin: 0;
     }
 
     table {
@@ -674,37 +676,27 @@
       80% { transform: translate(1px, -2px); }
     }
 
-    @keyframes matrixFall {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(50%); }
-    }
-
     @keyframes pulse {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
     }
 
     @media (max-width: 900px) {
-      .side-terminal {
-        display: none;
-      }
-
-
       .auth-container {
         margin: 80px auto;
       }
 
-      .container {
-        padding-right: 24px;
+      .admin-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-nav {
+        position: static;
       }
 
       .action-buttons {
         flex-direction: column;
         align-items: flex-start;
-      }
-
-      .tabs {
-        overflow-x: auto;
       }
 
       table {
@@ -718,9 +710,6 @@
     <span></span>
     <span></span>
     <span></span>
-  </div>
-  <div class="side-terminal matrix" aria-hidden="true">
-    <canvas id="matrix-canvas"></canvas>
   </div>
   <div id="app"></div>
 
@@ -1477,19 +1466,24 @@
           </div>
           <h1>Admin Dashboard</h1>
 
-          <div class="tabs glass-panel">
-            <button class="tab ${currentTab === 'dashboard' ? 'active' : ''}" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab ${currentTab === 'schools' ? 'active' : ''}" onclick="switchTab('schools')">Schools</button>
-            <button class="tab ${currentTab === 'classes' ? 'active' : ''}" onclick="switchTab('classes')">Classes</button>
-            <button class="tab ${currentTab === 'teachers' ? 'active' : ''}" onclick="switchTab('teachers')">Teachers</button>
-            <button class="tab ${currentTab === 'reviews' ? 'active' : ''}" onclick="switchTab('reviews')">Reviews</button>
-            <button class="tab ${currentTab === 'users' ? 'active' : ''}" onclick="switchTab('users')">Users</button>
-            <button class="tab ${currentTab === 'discussions' ? 'active' : ''}" onclick="switchTab('discussions')">Discussions</button>
-            <button class="tab ${currentTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')">Settings</button>
-          </div>
+          <div class="admin-shell">
+            <aside class="admin-nav glass-panel">
+              <div class="nav-title">Navigation</div>
+              <div class="tabs">
+                <button class="tab ${currentTab === 'dashboard' ? 'active' : ''}" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab ${currentTab === 'schools' ? 'active' : ''}" onclick="switchTab('schools')">Schools</button>
+                <button class="tab ${currentTab === 'classes' ? 'active' : ''}" onclick="switchTab('classes')">Classes</button>
+                <button class="tab ${currentTab === 'teachers' ? 'active' : ''}" onclick="switchTab('teachers')">Teachers</button>
+                <button class="tab ${currentTab === 'reviews' ? 'active' : ''}" onclick="switchTab('reviews')">Reviews</button>
+                <button class="tab ${currentTab === 'users' ? 'active' : ''}" onclick="switchTab('users')">Users</button>
+                <button class="tab ${currentTab === 'discussions' ? 'active' : ''}" onclick="switchTab('discussions')">Discussions</button>
+                <button class="tab ${currentTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')">Settings</button>
+              </div>
+            </aside>
 
-          ${currentTab === 'dashboard' ? `
-            <div class="tab-content active">
+            <section class="admin-main">
+              ${currentTab === 'dashboard' ? `
+                <div class="tab-content active">
               <h2>System Overview</h2>
               <div class="stats-grid">
                 <div class="stat-card glass-panel">
@@ -1517,15 +1511,15 @@
                   <div class="stat-label">Discussions</div>
                 </div>
               </div>
-            </div>
-          ` : ''}
+                </div>
+              ` : ''}
 
-          ${currentTab === 'schools' ? `
-            <div class="tab-content active">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Schools Management</h2>
-                <button onclick="showAddSchoolModal()">Add School</button>
-              </div>
+              ${currentTab === 'schools' ? `
+                <div class="tab-content active">
+                  <div class="section-header">
+                    <h2>Schools Management</h2>
+                    <button onclick="showAddSchoolModal()">Add School</button>
+                  </div>
               <table>
                 <thead>
                   <tr>
@@ -1546,15 +1540,15 @@
                   `).join('')}
                 </tbody>
               </table>
-            </div>
-          ` : ''}
+                </div>
+              ` : ''}
 
-          ${currentTab === 'classes' ? `
-            <div class="tab-content active">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Classes Management</h2>
-                <button onclick="showAddClassModal()">Add Class</button>
-              </div>
+              ${currentTab === 'classes' ? `
+                <div class="tab-content active">
+                  <div class="section-header">
+                    <h2>Classes Management</h2>
+                    <button onclick="showAddClassModal()">Add Class</button>
+                  </div>
               <table>
                 <thead>
                   <tr>
@@ -1577,15 +1571,15 @@
                   `).join('')}
                 </tbody>
               </table>
-            </div>
-          ` : ''}
+                </div>
+              ` : ''}
 
-          ${currentTab === 'teachers' ? `
-            <div class="tab-content active">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Teachers Management</h2>
-                <button onclick="showAddTeacherModal()">Add Teacher</button>
-              </div>
+              ${currentTab === 'teachers' ? `
+                <div class="tab-content active">
+                  <div class="section-header">
+                    <h2>Teachers Management</h2>
+                    <button onclick="showAddTeacherModal()">Add Teacher</button>
+                  </div>
               <table>
                 <thead>
                   <tr>
@@ -1613,13 +1607,13 @@
                   `).join('')}
                 </tbody>
               </table>
-            </div>
-          ` : ''}
+                </div>
+              ` : ''}
 
-          ${currentTab === 'reviews' ? `
-            <div class="tab-content active">
-              <h2>Reviews Management</h2>
-              <table>
+              ${currentTab === 'reviews' ? `
+                <div class="tab-content active">
+                  <h2>Reviews Management</h2>
+                  <table>
                 <thead>
                   <tr>
                     <th>Teacher</th>
@@ -1642,14 +1636,14 @@
                     </tr>
                   `).join('')}
                 </tbody>
-              </table>
-            </div>
-          ` : ''}
+                  </table>
+                </div>
+              ` : ''}
 
-          ${currentTab === 'users' ? `
-            <div class="tab-content active">
-              <h2>Users Management</h2>
-              <table>
+              ${currentTab === 'users' ? `
+                <div class="tab-content active">
+                  <h2>Users Management</h2>
+                  <table>
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -1675,14 +1669,14 @@
                     </tr>
                   `).join('')}
                 </tbody>
-              </table>
-            </div>
-          ` : ''}
+                  </table>
+                </div>
+              ` : ''}
 
-          ${currentTab === 'discussions' ? `
-            <div class="tab-content active">
-              <h2>Discussions Management</h2>
-              <table>
+              ${currentTab === 'discussions' ? `
+                <div class="tab-content active">
+                  <h2>Discussions Management</h2>
+                  <table>
                 <thead>
                   <tr>
                     <th>User</th>
@@ -1708,50 +1702,51 @@
                     </tr>
                   `).join('')}
                 </tbody>
-              </table>
-            </div>
-          ` : ''}
+                  </table>
+                </div>
+              ` : ''}
 
-          ${currentTab === 'settings' ? `
-            <div class="tab-content active">
-              <h2>System Settings</h2>
-              
-              <div class="toggle-section glass-panel">
-                <h3 style="margin-bottom: 20px;">Master Toggles</h3>
-                
-                <div class="toggle-item">
-                  <div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">Anonymous Reviews</div>
-                    <div style="font-size: 14px; color: #CCC;">Hide usernames from all reviews</div>
+              ${currentTab === 'settings' ? `
+                <div class="tab-content active">
+                  <h2>System Settings</h2>
+                  
+                  <div class="toggle-section glass-panel">
+                    <h3 style="margin-bottom: 20px;">Master Toggles</h3>
+                    
+                    <div class="toggle-item">
+                      <div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">Anonymous Reviews</div>
+                        <div style="font-size: 14px; color: #CCC;">Hide usernames from all reviews</div>
+                      </div>
+                      <div class="toggle-switch ${config.anonymousReviews ? 'active' : ''}" onclick="toggleConfig('anonymousReviews')">
+                        <div class="toggle-slider"></div>
+                      </div>
+                    </div>
+
+                    <div class="toggle-item">
+                      <div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">Hide Teacher Images</div>
+                        <div style="font-size: 14px; color: #CCC;">Display black sections instead of teacher images</div>
+                      </div>
+                      <div class="toggle-switch ${config.hideTeacherImages ? 'active' : ''}" onclick="toggleConfig('hideTeacherImages')">
+                        <div class="toggle-slider"></div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="toggle-switch ${config.anonymousReviews ? 'active' : ''}" onclick="toggleConfig('anonymousReviews')">
-                    <div class="toggle-slider"></div>
+
+                  <div class="card glass-panel">
+                    <h3>Important Notes</h3>
+                    <ul style="margin-top: 15px; padding-left: 20px; color: #CCC; line-height: 1.8;">
+                      <li>These toggles affect all users immediately</li>
+                      <li>Anonymous reviews will hide usernames but preserve review content</li>
+                      <li>Hidden teacher images will show as black sections while maintaining the layout</li>
+                      <li>To change the admin secret, update it directly in the database</li>
+                    </ul>
                   </div>
                 </div>
-
-                <div class="toggle-item">
-                  <div>
-                    <div style="font-weight: bold; margin-bottom: 5px;">Hide Teacher Images</div>
-                    <div style="font-size: 14px; color: #CCC;">Display black sections instead of teacher images</div>
-                  </div>
-                  <div class="toggle-switch ${config.hideTeacherImages ? 'active' : ''}" onclick="toggleConfig('hideTeacherImages')">
-                    <div class="toggle-slider"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card glass-panel">
-                <h3>Important Notes</h3>
-                <ul style="margin-top: 15px; padding-left: 20px; color: #CCC; line-height: 1.8;">
-                  <li>These toggles affect all users immediately</li>
-                  <li>Anonymous reviews will hide usernames but preserve review content</li>
-                  <li>Hidden teacher images will show as black sections while maintaining the layout</li>
-                  <li>To change the admin secret, update it directly in the database</li>
-                </ul>
-              </div>
-            </div>
-          ` : ''}
-        </div>
+              ` : ''}
+            </section>
+          </div>
 
         <footer class="footer">
           <div class="footer-grid">
@@ -1802,55 +1797,6 @@
     }
 
     render();
-  </script>
-  <script>
-    const matrixCanvas = document.getElementById('matrix-canvas');
-    if (matrixCanvas) {
-      const matrixCtx = matrixCanvas.getContext('2d');
-      const resizeMatrix = () => {
-        const parent = matrixCanvas.parentElement;
-        matrixCanvas.width = parent.clientWidth;
-        matrixCanvas.height = parent.clientHeight;
-      };
-      resizeMatrix();
-      window.addEventListener('resize', resizeMatrix);
-
-      const glyphs = '01WEAVEWORKSADMINMETRICS';
-      const fontSize = 14;
-      let columns = Math.floor(matrixCanvas.width / fontSize);
-      let drops = Array.from({ length: columns }, () => Math.random() * matrixCanvas.height);
-
-      const redraw = () => {
-        columns = Math.floor(matrixCanvas.width / fontSize);
-        if (drops.length !== columns) {
-          drops = Array.from({ length: columns }, () => Math.random() * matrixCanvas.height);
-        }
-      };
-
-      const draw = () => {
-        matrixCtx.fillStyle = 'rgba(5, 8, 14, 0.08)';
-        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-        matrixCtx.fillStyle = 'rgba(61, 219, 217, 0.7)';
-        matrixCtx.font = `${fontSize}px \"Space Mono\", monospace`;
-
-        for (let i = 0; i < drops.length; i++) {
-          const text = glyphs.charAt(Math.floor(Math.random() * glyphs.length));
-          matrixCtx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-          if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.965) {
-            drops[i] = 0;
-          }
-
-          drops[i] += 0.6;
-        }
-
-        requestAnimationFrame(draw);
-      };
-
-      redraw();
-      draw();
-      window.addEventListener('resize', redraw);
-    }
   </script>
 </body>
 </html>
