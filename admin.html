@@ -180,17 +180,10 @@
       mix-blend-mode: screen;
     }
 
-    .side-terminal .matrix-text {
-      position: absolute;
-      inset: 24px 24px 24px 24px;
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      color: rgba(61, 219, 217, 0.45);
-      letter-spacing: 0.22em;
-      line-height: 1.6;
-      text-transform: uppercase;
-      animation: matrixGlitch 6s ease-in-out infinite;
-      opacity: 0.7;
+    .side-terminal canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .form-group {
@@ -569,6 +562,8 @@
       padding: 56px 24px 36px;
       background: linear-gradient(140deg, rgba(8, 12, 20, 0.98), rgba(10, 18, 28, 0.92));
       border-top: 1px solid rgba(61, 219, 217, 0.3);
+      position: relative;
+      z-index: 2;
     }
 
     .footer-grid {
@@ -684,11 +679,6 @@
       100% { transform: translateY(50%); }
     }
 
-    @keyframes matrixGlitch {
-      0%, 100% { opacity: 0.5; transform: translateX(0); }
-      50% { opacity: 0.8; transform: translateX(6px); }
-    }
-
     @keyframes pulse {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
@@ -730,19 +720,7 @@
     <span></span>
   </div>
   <div class="side-terminal matrix" aria-hidden="true">
-    <div class="matrix-text">
-      system matrix feed
-      integrity locked
-      access verified
-      trace routing
-      signal drift
-      checksum stable
-      node cluster
-      security grid
-      data lattice
-      sync layer
-      recovery path
-    </div>
+    <canvas id="matrix-canvas"></canvas>
   </div>
   <div id="app"></div>
 
@@ -1824,6 +1802,55 @@
     }
 
     render();
+  </script>
+  <script>
+    const matrixCanvas = document.getElementById('matrix-canvas');
+    if (matrixCanvas) {
+      const matrixCtx = matrixCanvas.getContext('2d');
+      const resizeMatrix = () => {
+        const parent = matrixCanvas.parentElement;
+        matrixCanvas.width = parent.clientWidth;
+        matrixCanvas.height = parent.clientHeight;
+      };
+      resizeMatrix();
+      window.addEventListener('resize', resizeMatrix);
+
+      const glyphs = '01WEAVEWORKSADMINMETRICS';
+      const fontSize = 14;
+      let columns = Math.floor(matrixCanvas.width / fontSize);
+      let drops = Array.from({ length: columns }, () => Math.random() * matrixCanvas.height);
+
+      const redraw = () => {
+        columns = Math.floor(matrixCanvas.width / fontSize);
+        if (drops.length !== columns) {
+          drops = Array.from({ length: columns }, () => Math.random() * matrixCanvas.height);
+        }
+      };
+
+      const draw = () => {
+        matrixCtx.fillStyle = 'rgba(5, 8, 14, 0.08)';
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+        matrixCtx.fillStyle = 'rgba(61, 219, 217, 0.7)';
+        matrixCtx.font = `${fontSize}px \"Space Mono\", monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = glyphs.charAt(Math.floor(Math.random() * glyphs.length));
+          matrixCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.965) {
+            drops[i] = 0;
+          }
+
+          drops[i] += 0.6;
+        }
+
+        requestAnimationFrame(draw);
+      };
+
+      redraw();
+      draw();
+      window.addEventListener('resize', redraw);
+    }
   </script>
 </body>
 </html>
