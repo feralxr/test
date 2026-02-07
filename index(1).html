@@ -143,17 +143,15 @@
     }
 
     .logo::before {
-      content: '▣';
-      color: var(--signal);
-      text-shadow: 0 0 18px rgba(61, 219, 217, 0.6);
+      content: '';
     }
 
     .auth-page {
       min-height: 100vh;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
+      justify-content: flex-start;
+      padding: 40px 20px 40px 120px;
       position: relative;
       z-index: 1;
     }
@@ -648,6 +646,68 @@
       color: var(--success);
     }
 
+    .footer {
+      margin-top: 80px;
+      padding: 48px 24px 32px;
+      background: rgba(8, 12, 20, 0.92);
+      border-top: 1px solid rgba(61, 219, 217, 0.2);
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .footer-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .footer-text {
+      color: var(--steel-muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .footer-links a {
+      color: var(--steel);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      width: fit-content;
+      transition: border-color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      border-color: rgba(61, 219, 217, 0.6);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid rgba(61, 219, 217, 0.15);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--steel-muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     .text-center {
       text-align: center;
     }
@@ -689,6 +749,11 @@
     }
 
     @media (max-width: 768px) {
+      .auth-page {
+        justify-content: center;
+        padding: 40px 20px;
+      }
+
       .teachers-grid {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       }
@@ -877,7 +942,7 @@
       return `
         <div class="auth-page">
           <div class="auth-card">
-            <h1 class="auth-title">⭐ Rate Your Teacher</h1>
+            <h1 class="auth-title">Rate Your Teacher</h1>
             <div id="auth-error"></div>
             <form id="auth-form">
               <div class="form-group">
@@ -893,6 +958,46 @@
             </form>
           </div>
         </div>
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-title">Weaveworks</div>
+              <p class="footer-text">Mechanical clarity for student feedback loops and learning insights.</p>
+            </div>
+            <div>
+              <div class="footer-title">Platform</div>
+              <div class="footer-links">
+                <a href="#">Teacher Directory</a>
+                <a href="#">Live Discussions</a>
+                <a href="#">Rating Insights</a>
+                <a href="#">Community Rules</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Resources</div>
+              <div class="footer-links">
+                <a href="#">Documentation</a>
+                <a href="#">Help Center</a>
+                <a href="#">Release Notes</a>
+                <a href="#">API Reference</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Company</div>
+              <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Contact</a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>Weaveworks</span>
+            <span>Precision feedback platform</span>
+            <span>© 2025 Weaveworks</span>
+          </div>
+        </footer>
       `;
     }
 
@@ -919,6 +1024,46 @@
             </form>
           </div>
         </div>
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-title">Weaveworks</div>
+              <p class="footer-text">Structured onboarding designed for high signal academic feedback.</p>
+            </div>
+            <div>
+              <div class="footer-title">Platform</div>
+              <div class="footer-links">
+                <a href="#">Teacher Directory</a>
+                <a href="#">Live Discussions</a>
+                <a href="#">Rating Insights</a>
+                <a href="#">Community Rules</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Resources</div>
+              <div class="footer-links">
+                <a href="#">Documentation</a>
+                <a href="#">Help Center</a>
+                <a href="#">Release Notes</a>
+                <a href="#">API Reference</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Company</div>
+              <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Contact</a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>Weaveworks</span>
+            <span>Precision feedback platform</span>
+            <span>© 2025 Weaveworks</span>
+          </div>
+        </footer>
       `;
     }
 
@@ -926,7 +1071,7 @@
       return `
         <div class="header">
           <div class="header-content">
-            <div class="logo">⭐ Rate Your Teacher</div>
+            <div class="logo">Rate Your Teacher</div>
             <button class="btn btn-small" onclick="logout()">Logout</button>
           </div>
         </div>
@@ -951,6 +1096,46 @@
         </div>
 
         <div id="teacher-modal" class="modal"></div>
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-title">Weaveworks</div>
+              <p class="footer-text">A precision feedback studio for learning communities and academic teams.</p>
+            </div>
+            <div>
+              <div class="footer-title">Platform</div>
+              <div class="footer-links">
+                <a href="#">Teacher Directory</a>
+                <a href="#">Live Discussions</a>
+                <a href="#">Rating Insights</a>
+                <a href="#">Community Rules</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Resources</div>
+              <div class="footer-links">
+                <a href="#">Documentation</a>
+                <a href="#">Help Center</a>
+                <a href="#">Release Notes</a>
+                <a href="#">API Reference</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Company</div>
+              <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Contact</a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>Weaveworks</span>
+            <span>Precision feedback platform</span>
+            <span>© 2025 Weaveworks</span>
+          </div>
+        </footer>
       `;
     }
 
@@ -1047,7 +1232,7 @@
           <div class="message-header">
             <span class="message-user">
               ${message.username}
-              ${message.isPinned ? '<span style="color: var(--gold);">📌</span>' : ''}
+              ${message.isPinned ? '<span style="color: var(--signal);">Pinned</span>' : ''}
             </span>
             <span class="message-time">${new Date(message.createdAt).toLocaleString()}</span>
           </div>

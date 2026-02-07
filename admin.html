@@ -131,7 +131,7 @@
 
     .auth-container {
       max-width: 420px;
-      margin: 120px auto;
+      margin: 120px 0 120px 120px;
       padding: 44px;
       animation: popIn 0.6s ease;
     }
@@ -477,6 +477,68 @@
       padding: 0;
     }
 
+    .footer {
+      margin-top: 80px;
+      padding: 48px 24px 32px;
+      background: rgba(8, 12, 20, 0.92);
+      border-top: 1px solid rgba(61, 219, 217, 0.2);
+    }
+
+    .footer-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .footer-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .footer-text {
+      color: var(--steel-muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-links {
+      display: grid;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .footer-links a {
+      color: var(--steel);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      width: fit-content;
+      transition: border-color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      border-color: rgba(61, 219, 217, 0.6);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 32px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid rgba(61, 219, 217, 0.15);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--steel-muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     @keyframes popIn {
       from { transform: translateY(18px) scale(0.98); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
@@ -493,6 +555,10 @@
     }
 
     @media (max-width: 768px) {
+      .auth-container {
+        margin: 80px auto;
+      }
+
       .action-buttons {
         flex-direction: column;
         align-items: flex-start;
@@ -1187,6 +1253,46 @@
               <button type="submit">Login</button>
             </form>
           </div>
+          <footer class="footer">
+            <div class="footer-grid">
+              <div>
+                <div class="footer-title">Weaveworks</div>
+                <p class="footer-text">Industrial-grade insights and operational clarity for modern education teams.</p>
+              </div>
+              <div>
+                <div class="footer-title">Platform</div>
+                <div class="footer-links">
+                  <a href="#">Dashboard Overview</a>
+                  <a href="#">System Status</a>
+                  <a href="#">Security</a>
+                  <a href="#">Integrations</a>
+                </div>
+              </div>
+              <div>
+                <div class="footer-title">Resources</div>
+                <div class="footer-links">
+                  <a href="#">Documentation</a>
+                  <a href="#">Release Notes</a>
+                  <a href="#">Support</a>
+                  <a href="#">API Reference</a>
+                </div>
+              </div>
+              <div>
+                <div class="footer-title">Company</div>
+                <div class="footer-links">
+                  <a href="#">About</a>
+                  <a href="#">Careers</a>
+                  <a href="#">Press</a>
+                  <a href="#">Contact</a>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bottom">
+              <span>Weaveworks</span>
+              <span>All systems operational</span>
+              <span>© 2025 Weaveworks</span>
+            </div>
+          </footer>
         `;
 
         document.getElementById('auth-form').onsubmit = async (e) => {
@@ -1217,7 +1323,7 @@
       app.innerHTML = `
         <div class="container">
           <div class="top-bar glass-panel">
-            <div class="chip">⚡ Command Center</div>
+            <div class="chip">Command Center</div>
             <button onclick="logout()">Logout</button>
           </div>
           <h1>Admin Dashboard</h1>
@@ -1443,7 +1549,7 @@
                       <td>${msg.username}</td>
                       <td style="max-width: 400px;">${msg.message}</td>
                       <td>${new Date(msg.createdAt).toLocaleString()}</td>
-                      <td>${msg.isPinned ? '📌 Yes' : 'No'}</td>
+                      <td>${msg.isPinned ? 'Pinned' : 'No'}</td>
                       <td>
                         <div class="action-buttons">
                           <button onclick="handleTogglePin('${msg._id}')">${msg.isPinned ? 'Unpin' : 'Pin'}</button>
@@ -1498,6 +1604,46 @@
           ` : ''}
         </div>
 
+        <footer class="footer">
+          <div class="footer-grid">
+            <div>
+              <div class="footer-title">Weaveworks</div>
+              <p class="footer-text">Structured admin workflows with pipeline-ready controls and audit-grade visibility.</p>
+            </div>
+            <div>
+              <div class="footer-title">Platform</div>
+              <div class="footer-links">
+                <a href="#">Dashboard Overview</a>
+                <a href="#">System Status</a>
+                <a href="#">Security</a>
+                <a href="#">Integrations</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Resources</div>
+              <div class="footer-links">
+                <a href="#">Documentation</a>
+                <a href="#">Release Notes</a>
+                <a href="#">Support</a>
+                <a href="#">API Reference</a>
+              </div>
+            </div>
+            <div>
+              <div class="footer-title">Company</div>
+              <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Contact</a>
+              </div>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <span>Weaveworks</span>
+            <span>Precision systems for education</span>
+            <span>© 2025 Weaveworks</span>
+          </div>
+        </footer>
         <div id="modal" class="modal"></div>
       `;
     }
