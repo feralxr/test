@@ -142,6 +142,95 @@
       animation: popIn 0.6s ease;
     }
 
+    .console-panel {
+      position: absolute;
+      top: 120px;
+      right: 80px;
+      width: min(420px, 36vw);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(61, 219, 217, 0.35);
+      background: rgba(6, 9, 16, 0.85);
+      color: var(--steel);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      box-shadow: 0 25px 60px rgba(5, 7, 12, 0.6);
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .console-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(61, 219, 217, 0.08),
+        rgba(61, 219, 217, 0.08) 2px,
+        transparent 2px,
+        transparent 6px
+      );
+      opacity: 0.35;
+      pointer-events: none;
+    }
+
+    .console-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(61, 219, 217, 0.25), transparent);
+      transform: translateX(-120%);
+      animation: scan 4s ease-in-out infinite;
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 11px;
+      color: var(--steel-muted);
+    }
+
+    .console-lines {
+      display: grid;
+      gap: 8px;
+    }
+
+    .console-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .console-line span:last-child {
+      color: var(--signal);
+    }
+
+    .console-glitch {
+      position: relative;
+    }
+
+    .console-glitch::before,
+    .console-glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      opacity: 0.6;
+      clip-path: inset(0 0 70% 0);
+      animation: glitch 2.4s infinite ease-in-out;
+    }
+
+    .console-glitch::after {
+      clip-path: inset(70% 0 0 0);
+      animation-delay: 1.2s;
+    }
+
     .form-group {
       margin-bottom: 18px;
     }
@@ -614,6 +703,20 @@
       100% { transform: translateX(120%); }
     }
 
+    @keyframes scan {
+      0% { transform: translateX(-120%); }
+      40% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+
+    @keyframes glitch {
+      0%, 100% { transform: translate(0); opacity: 0.4; }
+      20% { transform: translate(-2px, -1px); }
+      40% { transform: translate(2px, 1px); }
+      60% { transform: translate(-1px, 2px); opacity: 0.6; }
+      80% { transform: translate(1px, -2px); }
+    }
+
     @keyframes pulse {
       0%, 100% { opacity: 0.5; }
       50% { opacity: 1; }
@@ -622,6 +725,14 @@
     @media (max-width: 768px) {
       .auth-container {
         margin: 80px auto;
+      }
+
+      .console-panel {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: auto;
+        margin: 0 24px 32px;
       }
 
       .action-buttons {
@@ -1318,6 +1429,19 @@
               <button type="submit">Login</button>
             </form>
           </div>
+          <div class="console-panel">
+            <div class="console-header">
+              <span>System Console</span>
+              <span>Live</span>
+            </div>
+            <div class="console-lines">
+              <div class="console-line"><span>Pipeline Sync</span><span>Active</span></div>
+              <div class="console-line"><span>Auth Gateway</span><span>Secure</span></div>
+              <div class="console-line"><span>Audit Trace</span><span>Streaming</span></div>
+              <div class="console-line console-glitch" data-text="Signal Integrity"><span>Signal Integrity</span><span>Stable</span></div>
+              <div class="console-line"><span>Node Health</span><span>Nominal</span></div>
+            </div>
+          </div>
           <footer class="footer">
             <div class="footer-grid">
               <div>
@@ -1676,6 +1800,19 @@
           ` : ''}
         </div>
 
+        <div class="console-panel" style="position: fixed; top: 160px; right: 80px;">
+          <div class="console-header">
+            <span>Control Feed</span>
+            <span>Live</span>
+          </div>
+          <div class="console-lines">
+            <div class="console-line"><span>Request Queue</span><span>Aligned</span></div>
+            <div class="console-line"><span>Data Pipelines</span><span>Active</span></div>
+            <div class="console-line console-glitch" data-text="Ledger Sync"><span>Ledger Sync</span><span>Stable</span></div>
+            <div class="console-line"><span>Config State</span><span>Locked</span></div>
+            <div class="console-line"><span>Review Index</span><span>Updated</span></div>
+          </div>
+        </div>
         <footer class="footer">
           <div class="footer-grid">
             <div>
