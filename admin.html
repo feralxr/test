@@ -59,6 +59,12 @@
       z-index: 0;
     }
 
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
     .ambient-orbs {
       position: fixed;
       inset: 0;
@@ -230,22 +236,24 @@
     
     .brand-mark {
       font-family: 'Space Mono', monospace;
-      font-size: 13px;
-      letter-spacing: 0.3em;
+      font-size: 14px;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: var(--steel);
-      padding: 8px 14px;
-      border: 1px solid rgba(61, 219, 217, 0.4);
+      color: #041114;
+      padding: 10px 18px;
+      border: 1px solid rgba(61, 219, 217, 0.7);
       border-radius: 999px;
       position: relative;
       overflow: hidden;
+      background: linear-gradient(135deg, rgba(61, 219, 217, 0.95), rgba(61, 219, 217, 0.65));
+      box-shadow: 0 12px 30px rgba(61, 219, 217, 0.35);
     }
 
     .brand-mark::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(120deg, transparent, rgba(61, 219, 217, 0.4), transparent);
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
       transform: translateX(-120%);
       animation: sweep 3s ease-in-out infinite;
     }
@@ -506,10 +514,10 @@
     }
 
     .footer {
-      margin-top: 80px;
-      padding: 48px 24px 32px;
-      background: rgba(8, 12, 20, 0.92);
-      border-top: 1px solid rgba(61, 219, 217, 0.2);
+      margin-top: auto;
+      padding: 56px 24px 36px;
+      background: linear-gradient(140deg, rgba(8, 12, 20, 0.98), rgba(10, 18, 28, 0.92));
+      border-top: 1px solid rgba(61, 219, 217, 0.3);
     }
 
     .footer-grid {
@@ -520,12 +528,35 @@
       gap: 24px;
     }
 
+    .footer-brand {
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--steel);
+      margin-bottom: 12px;
+    }
+
     .footer-title {
       font-family: 'Space Mono', monospace;
       font-size: 14px;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       margin-bottom: 12px;
+    }
+
+    .footer-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(61, 219, 217, 0.35);
+      color: var(--steel-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-top: 16px;
     }
 
     .footer-text {
@@ -1290,8 +1321,9 @@
           <footer class="footer">
             <div class="footer-grid">
               <div>
-                <div class="footer-title">Weaveworks</div>
-                <p class="footer-text">Industrial-grade insights and operational clarity for modern education teams.</p>
+                <div class="footer-brand">Weaveworks</div>
+                <p class="footer-text">Operational clarity for education systems, engineered for precision and trusted performance.</p>
+                <div class="footer-pill">Command Layer</div>
               </div>
               <div>
                 <div class="footer-title">Platform</div>
@@ -1300,6 +1332,7 @@
                   <a href="#">System Status</a>
                   <a href="#">Security</a>
                   <a href="#">Integrations</a>
+                  <a href="#">Compliance</a>
                 </div>
               </div>
               <div>
@@ -1309,6 +1342,7 @@
                   <a href="#">Release Notes</a>
                   <a href="#">Support</a>
                   <a href="#">API Reference</a>
+                  <a href="#">Admin Handbook</a>
                 </div>
               </div>
               <div>
@@ -1318,6 +1352,7 @@
                   <a href="#">Careers</a>
                   <a href="#">Press</a>
                   <a href="#">Contact</a>
+                  <a href="#">Partners</a>
                 </div>
               </div>
             </div>
@@ -1644,8 +1679,9 @@
         <footer class="footer">
           <div class="footer-grid">
             <div>
-              <div class="footer-title">Weaveworks</div>
+              <div class="footer-brand">Weaveworks</div>
               <p class="footer-text">Structured admin workflows with pipeline-ready controls and audit-grade visibility.</p>
+              <div class="footer-pill">Control Fabric</div>
             </div>
             <div>
               <div class="footer-title">Platform</div>
@@ -1654,6 +1690,7 @@
                 <a href="#">System Status</a>
                 <a href="#">Security</a>
                 <a href="#">Integrations</a>
+                <a href="#">Compliance</a>
               </div>
             </div>
             <div>
@@ -1663,6 +1700,7 @@
                 <a href="#">Release Notes</a>
                 <a href="#">Support</a>
                 <a href="#">API Reference</a>
+                <a href="#">Admin Handbook</a>
               </div>
             </div>
             <div>
@@ -1672,6 +1710,7 @@
                 <a href="#">Careers</a>
                 <a href="#">Press</a>
                 <a href="#">Contact</a>
+                <a href="#">Partners</a>
               </div>
             </div>
           </div>
