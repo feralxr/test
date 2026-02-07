@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Rate Your Teacher</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      color: #FFD700;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1, h2, h3 {
+      color: #FFD700;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin: 30px 0;
+      letter-spacing: 2px;
+    }
+
+    .auth-container {
+      max-width: 400px;
+      margin: 100px auto;
+      background: rgba(255, 215, 0, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      border: 3px solid #FFD700;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      background: #000;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      color: #FFD700;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+      border-color: #FFA500;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #FF6B6B 0%, #FF4444 100%);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #FFD700;
+      border: 2px solid #FFD700;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #FFD700;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 15px 25px;
+      background: transparent;
+      color: #FFD700;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      border-bottom-color: #FFD700;
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: rgba(255, 215, 0, 0.05);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #FFD700;
+    }
+
+    th {
+      background: rgba(255, 215, 0, 0.2);
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background: rgba(255, 215, 0, 0.05);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .action-buttons button {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .error {
+      background: rgba(255, 0, 0, 0.2);
+      color: #FF6B6B;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 2px solid #FF6B6B;
+    }
+
+    .success {
+      background: rgba(0, 255, 0, 0.2);
+      color: #6BCF6B;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 2px solid #6BCF6B;
+    }
+
+    .toggle-section {
+      background: rgba(255, 215, 0, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #FFD700;
+      margin-bottom: 30px;
+    }
+
+    .toggle-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .toggle-item:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 30px;
+      background: #000;
+      border: 2px solid #FFD700;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #FFD700;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      background: #FFD700;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+
+    .toggle-switch.active .toggle-slider {
+      left: 32px;
+      background: #000;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 215, 0, 0.1);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #CCC;
+      margin-top: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal.active {
+      display: block;
+    }
+
+    .modal-content {
+      max-width: 600px;
+      margin: 50px auto;
+      background: #1a1a1a;
+      border: 3px solid #FFD700;
+      border-radius: 15px;
+      padding: 30px;
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 30px;
+      color: #FFD700;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .tabs {
+        overflow-x: auto;
+      }
+
+      table {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const API_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000' 
+      : 'https://your-render-backend-url.onrender.com';
+
+    let token = localStorage.getItem('adminToken');
+    let currentTab = 'dashboard';
+    let schools = [];
+    let classes = [];
+    let teachers = [];
+    let reviews = [];
+    let users = [];
+    let discussions = [];
+    let config = { anonymousReviews: false, hideTeacherImages: false };
+
+    // Auth
+    async function adminLogin(secret) {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      token = data.token;
+      localStorage.setItem('adminToken', token);
+      return data;
+    }
+
+    function logout() {
+      token = null;
+      localStorage.removeItem('adminToken');
+      render();
+    }
+
+    // API Functions
+    async function fetchConfig() {
+      const response = await fetch(`${API_URL}/api/admin/config`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      config = await response.json();
+    }
+
+    async function updateConfig(updates) {
+      const response = await fetch(`${API_URL}/api/admin/config`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(updates)
+      });
+      config = await response.json();
+    }
+
+    async function fetchSchools() {
+      const response = await fetch(`${API_URL}/api/schools`);
+      schools = await response.json();
+    }
+
+    async function createSchool(name) {
+      const response = await fetch(`${API_URL}/api/admin/schools`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name })
+      });
+      return response.json();
+    }
+
+    async function deleteSchool(id) {
+      await fetch(`${API_URL}/api/admin/schools/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function fetchClasses() {
+      const response = await fetch(`${API_URL}/api/schools`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const schoolsList = await response.json();
+      
+      classes = [];
+      for (const school of schoolsList) {
+        const classesRes = await fetch(`${API_URL}/api/schools/${school._id}/classes`);
+        const schoolClasses = await classesRes.json();
+        classes.push(...schoolClasses.map(c => ({ ...c, schoolName: school.name })));
+      }
+    }
+
+    async function createClass(name, schoolId) {
+      const response = await fetch(`${API_URL}/api/admin/classes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, schoolId })
+      });
+      return response.json();
+    }
+
+    async function deleteClass(id) {
+      await fetch(`${API_URL}/api/admin/classes/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function fetchTeachers() {
+      const response = await fetch(`${API_URL}/api/admin/teachers`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      teachers = await response.json();
+    }
+
+    async function createTeacher(data) {
+      const response = await fetch(`${API_URL}/api/admin/teachers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+
+    async function updateTeacher(id, data) {
+      const response = await fetch(`${API_URL}/api/admin/teachers/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+
+    async function deleteTeacher(id) {
+      await fetch(`${API_URL}/api/admin/teachers/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function fetchReviews() {
+      const response = await fetch(`${API_URL}/api/admin/reviews`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      reviews = await response.json();
+    }
+
+    async function deleteReview(id) {
+      await fetch(`${API_URL}/api/admin/reviews/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function fetchUsers() {
+      const response = await fetch(`${API_URL}/api/admin/users`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      users = await response.json();
+    }
+
+    async function deleteUser(id) {
+      await fetch(`${API_URL}/api/admin/users/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function resetUserPassword(id, newPassword) {
+      await fetch(`${API_URL}/api/admin/users/${id}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newPassword })
+      });
+    }
+
+    async function fetchDiscussions() {
+      const response = await fetch(`${API_URL}/api/discussions`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      discussions = await response.json();
+    }
+
+    async function togglePin(id) {
+      await fetch(`${API_URL}/api/admin/discussions/${id}/pin`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    async function deleteDiscussion(id) {
+      await fetch(`${API_URL}/api/admin/discussions/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    // UI Functions
+    window.switchTab = function(tab) {
+      currentTab = tab;
+      render();
+    };
+
+    window.toggleConfig = async function(key) {
+      const newValue = !config[key];
+      await updateConfig({ [key]: newValue });
+      render();
+    };
+
+    window.openModal = function(modalId) {
+      document.getElementById(modalId).classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    };
+
+    window.showAddSchoolModal = function() {
+      const modal = document.getElementById('modal');
+      modal.innerHTML = `
+        <div class="modal-content">
+          <button class="close-modal" onclick="closeModal('modal')">×</button>
+          <h2>Add School</h2>
+          <form onsubmit="handleAddSchool(event)">
+            <div class="form-group">
+              <label>School Name</label>
+              <input type="text" id="school-name" required />
+            </div>
+            <button type="submit">Add School</button>
+          </form>
+        </div>
+      `;
+      modal.classList.add('active');
+    };
+
+    window.handleAddSchool = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('school-name').value;
+      await createSchool(name);
+      closeModal('modal');
+      await fetchSchools();
+      render();
+    };
+
+    window.handleDeleteSchool = async function(id) {
+      if (!confirm('Delete this school? This will also delete all associated classes and teachers.')) return;
+      await deleteSchool(id);
+      await fetchSchools();
+      render();
+    };
+
+    window.showAddClassModal = function() {
+      const modal = document.getElementById('modal');
+      modal.innerHTML = `
+        <div class="modal-content">
+          <button class="close-modal" onclick="closeModal('modal')">×</button>
+          <h2>Add Class</h2>
+          <form onsubmit="handleAddClass(event)">
+            <div class="form-group">
+              <label>School</label>
+              <select id="class-school" required>
+                <option value="">Select School</option>
+                ${schools.map(s => `<option value="${s._id}">${s.name}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Class Name</label>
+              <input type="text" id="class-name" required />
+            </div>
+            <button type="submit">Add Class</button>
+          </form>
+        </div>
+      `;
+      modal.classList.add('active');
+    };
+
+    window.handleAddClass = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('class-name').value;
+      const schoolId = document.getElementById('class-school').value;
+      await createClass(name, schoolId);
+      closeModal('modal');
+      await fetchClasses();
+      render();
+    };
+
+    window.handleDeleteClass = async function(id) {
+      if (!confirm('Delete this class? This will also delete all associated teachers.')) return;
+      await deleteClass(id);
+      await fetchClasses();
+      render();
+    };
+
+    window.showAddTeacherModal = function() {
+      const modal = document.getElementById('modal');
+      modal.innerHTML = `
+        <div class="modal-content">
+          <button class="close-modal" onclick="closeModal('modal')">×</button>
+          <h2>Add Teacher</h2>
+          <form onsubmit="handleAddTeacher(event)">
+            <div class="form-group">
+              <label>School</label>
+              <select id="teacher-school" required onchange="updateClassOptions()">
+                <option value="">Select School</option>
+                ${schools.map(s => `<option value="${s._id}">${s.name}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Class</label>
+              <select id="teacher-class" required disabled>
+                <option value="">First select a school</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Teacher Name</label>
+              <input type="text" id="teacher-name" required />
+            </div>
+            <div class="form-group">
+              <label>Qualifications</label>
+              <textarea id="teacher-qualifications" required></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Image Option</label>
+              <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button type="button" class="btn-secondary" onclick="toggleImageOption('url')" id="btn-url">Use URL</button>
+                <button type="button" class="btn-secondary" onclick="toggleImageOption('upload')" id="btn-upload">Upload Image</button>
+              </div>
+            </div>
+
+            <div class="form-group" id="url-option" style="display: none;">
+              <label>Image URL</label>
+              <input type="text" id="teacher-image-url" placeholder="https://..." />
+            </div>
+
+            <div class="form-group" id="upload-option" style="display: none;">
+              <label>Upload Image</label>
+              <input type="file" id="teacher-image-file" accept="image/*" />
+              <div id="upload-progress" style="margin-top: 10px; display: none;">
+                <div style="color: #FFD700;">Uploading...</div>
+              </div>
+              <div id="upload-preview" style="margin-top: 10px; display: none;">
+                <img id="preview-img" style="max-width: 200px; border: 2px solid #FFD700; border-radius: 8px;" />
+              </div>
+            </div>
+
+            <button type="submit" id="submit-teacher-btn">Add Teacher</button>
+          </form>
+        </div>
+      `;
+      modal.classList.add('active');
+      
+      // Default to URL option
+      toggleImageOption('url');
+    };
+
+    window.toggleImageOption = function(option) {
+      const urlOption = document.getElementById('url-option');
+      const uploadOption = document.getElementById('upload-option');
+      const btnUrl = document.getElementById('btn-url');
+      const btnUpload = document.getElementById('btn-upload');
+      
+      if (option === 'url') {
+        urlOption.style.display = 'block';
+        uploadOption.style.display = 'none';
+        btnUrl.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        btnUrl.style.color = '#000';
+        btnUpload.style.background = 'transparent';
+        btnUpload.style.color = '#FFD700';
+        document.getElementById('teacher-image-url').required = true;
+        document.getElementById('teacher-image-file').required = false;
+      } else {
+        urlOption.style.display = 'none';
+        uploadOption.style.display = 'block';
+        btnUpload.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        btnUpload.style.color = '#000';
+        btnUrl.style.background = 'transparent';
+        btnUrl.style.color = '#FFD700';
+        document.getElementById('teacher-image-url').required = false;
+        document.getElementById('teacher-image-file').required = true;
+      }
+    };
+
+    window.updateClassOptions = async function() {
+      const schoolId = document.getElementById('teacher-school').value;
+      const classSelect = document.getElementById('teacher-class');
+      
+      if (schoolId) {
+        const response = await fetch(`${API_URL}/api/schools/${schoolId}/classes`);
+        const schoolClasses = await response.json();
+        classSelect.innerHTML = '<option value="">Select Class</option>' + 
+          schoolClasses.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+        classSelect.disabled = false;
+      } else {
+        classSelect.innerHTML = '<option value="">First select a school</option>';
+        classSelect.disabled = true;
+      }
+    };
+
+    window.handleAddTeacher = async function(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-teacher-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Adding...';
+      
+      try {
+        let imageUrl = document.getElementById('teacher-image-url').value;
+        const imageFile = document.getElementById('teacher-image-file').files[0];
+        
+        // If file is selected, upload it first
+        if (imageFile) {
+          document.getElementById('upload-progress').style.display = 'block';
+          
+          const formData = new FormData();
+          formData.append('image', imageFile);
+          
+          const uploadResponse = await fetch(`${API_URL}/api/admin/upload-image`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error('Image upload failed');
+          }
+          
+          const uploadData = await uploadResponse.json();
+          imageUrl = uploadData.imageUrl;
+          
+          document.getElementById('upload-progress').style.display = 'none';
+        }
+        
+        if (!imageUrl) {
+          throw new Error('Please provide an image URL or upload an image');
+        }
+        
+        const data = {
+          name: document.getElementById('teacher-name').value,
+          qualifications: document.getElementById('teacher-qualifications').value,
+          imageUrl: imageUrl,
+          classId: document.getElementById('teacher-class').value,
+          schoolId: document.getElementById('teacher-school').value
+        };
+        
+        await createTeacher(data);
+        closeModal('modal');
+        await fetchTeachers();
+        render();
+      } catch (error) {
+        alert('Error: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Teacher';
+      }
+    };
+
+    window.showEditTeacherModal = function(teacher) {
+      const modal = document.getElementById('modal');
+      modal.innerHTML = `
+        <div class="modal-content">
+          <button class="close-modal" onclick="closeModal('modal')">×</button>
+          <h2>Edit Teacher</h2>
+          <form onsubmit="handleEditTeacher(event, '${teacher._id}')">
+            <div class="form-group">
+              <label>Teacher Name</label>
+              <input type="text" id="edit-teacher-name" value="${teacher.name}" required />
+            </div>
+            <div class="form-group">
+              <label>Qualifications</label>
+              <textarea id="edit-teacher-qualifications" required>${teacher.qualifications}</textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Current Image</label>
+              <img src="${teacher.imageUrl}" style="max-width: 200px; border: 2px solid #FFD700; border-radius: 8px; display: block; margin-bottom: 10px;" />
+            </div>
+
+            <div class="form-group">
+              <label>Update Image</label>
+              <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button type="button" class="btn-secondary" onclick="toggleEditImageOption('url')" id="edit-btn-url">Use URL</button>
+                <button type="button" class="btn-secondary" onclick="toggleEditImageOption('upload')" id="edit-btn-upload">Upload New</button>
+                <button type="button" class="btn-secondary" onclick="toggleEditImageOption('keep')" id="edit-btn-keep">Keep Current</button>
+              </div>
+            </div>
+
+            <div class="form-group" id="edit-url-option" style="display: none;">
+              <label>New Image URL</label>
+              <input type="text" id="edit-teacher-image-url" placeholder="https://..." />
+            </div>
+
+            <div class="form-group" id="edit-upload-option" style="display: none;">
+              <label>Upload New Image</label>
+              <input type="file" id="edit-teacher-image-file" accept="image/*" />
+              <div id="edit-upload-progress" style="margin-top: 10px; display: none;">
+                <div style="color: #FFD700;">Uploading...</div>
+              </div>
+            </div>
+
+            <input type="hidden" id="edit-current-image" value="${teacher.imageUrl}" />
+            
+            <button type="submit" id="submit-edit-teacher-btn">Update Teacher</button>
+          </form>
+        </div>
+      `;
+      modal.classList.add('active');
+      
+      // Default to keep current
+      toggleEditImageOption('keep');
+    };
+
+    window.toggleEditImageOption = function(option) {
+      const urlOption = document.getElementById('edit-url-option');
+      const uploadOption = document.getElementById('edit-upload-option');
+      const btnUrl = document.getElementById('edit-btn-url');
+      const btnUpload = document.getElementById('edit-btn-upload');
+      const btnKeep = document.getElementById('edit-btn-keep');
+      
+      // Reset all buttons
+      [btnUrl, btnUpload, btnKeep].forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = '#FFD700';
+      });
+      
+      if (option === 'url') {
+        urlOption.style.display = 'block';
+        uploadOption.style.display = 'none';
+        btnUrl.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        btnUrl.style.color = '#000';
+      } else if (option === 'upload') {
+        urlOption.style.display = 'none';
+        uploadOption.style.display = 'block';
+        btnUpload.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        btnUpload.style.color = '#000';
+      } else {
+        urlOption.style.display = 'none';
+        uploadOption.style.display = 'none';
+        btnKeep.style.background = 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)';
+        btnKeep.style.color = '#000';
+      }
+    };
+
+    window.handleEditTeacher = async function(e, id) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-edit-teacher-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+      
+      try {
+        let imageUrl = document.getElementById('edit-teacher-image-url').value;
+        const imageFile = document.getElementById('edit-teacher-image-file').files[0];
+        const currentImage = document.getElementById('edit-current-image').value;
+        
+        // If file is selected, upload it first
+        if (imageFile) {
+          document.getElementById('edit-upload-progress').style.display = 'block';
+          
+          const formData = new FormData();
+          formData.append('image', imageFile);
+          
+          const uploadResponse = await fetch(`${API_URL}/api/admin/upload-image`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error('Image upload failed');
+          }
+          
+          const uploadData = await uploadResponse.json();
+          imageUrl = uploadData.imageUrl;
+          
+          document.getElementById('edit-upload-progress').style.display = 'none';
+        }
+        
+        // If no new image provided, keep current
+        if (!imageUrl) {
+          imageUrl = currentImage;
+        }
+        
+        const data = {
+          name: document.getElementById('edit-teacher-name').value,
+          qualifications: document.getElementById('edit-teacher-qualifications').value,
+          imageUrl: imageUrl
+        };
+        
+        await updateTeacher(id, data);
+        closeModal('modal');
+        await fetchTeachers();
+        render();
+      } catch (error) {
+        alert('Error: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Update Teacher';
+      }
+    };
+
+    window.handleDeleteTeacher = async function(id) {
+      if (!confirm('Delete this teacher? This will also delete all reviews and ratings.')) return;
+      await deleteTeacher(id);
+      await fetchTeachers();
+      render();
+    };
+
+    window.handleDeleteReview = async function(id) {
+      if (!confirm('Delete this review?')) return;
+      await deleteReview(id);
+      await fetchReviews();
+      render();
+    };
+
+    window.handleDeleteUser = async function(id) {
+      if (!confirm('Delete this user? This will also delete all their reviews, ratings, and discussions.')) return;
+      await deleteUser(id);
+      await fetchUsers();
+      render();
+    };
+
+    window.handleResetPassword = async function(id) {
+      const newPassword = prompt('Enter new password:');
+      if (!newPassword) return;
+      await resetUserPassword(id, newPassword);
+      alert('Password reset successfully');
+    };
+
+    window.handleTogglePin = async function(id) {
+      await togglePin(id);
+      await fetchDiscussions();
+      render();
+    };
+
+    window.handleDeleteDiscussion = async function(id) {
+      if (!confirm('Delete this discussion message?')) return;
+      await deleteDiscussion(id);
+      await fetchDiscussions();
+      render();
+    };
+
+    async function render() {
+      const app = document.getElementById('app');
+
+      if (!token) {
+        app.innerHTML = `
+          <div class="auth-container">
+            <h2 style="text-align: center; margin-bottom: 30px;">Admin Login</h2>
+            <div id="auth-error"></div>
+            <form id="auth-form">
+              <div class="form-group">
+                <label>Admin Secret</label>
+                <input type="password" id="secret" required />
+              </div>
+              <button type="submit">Login</button>
+            </form>
+          </div>
+        `;
+
+        document.getElementById('auth-form').onsubmit = async (e) => {
+          e.preventDefault();
+          const secret = document.getElementById('secret').value;
+          
+          try {
+            await adminLogin(secret);
+            render();
+          } catch (error) {
+            document.getElementById('auth-error').innerHTML = `<div class="error">${error.message}</div>`;
+          }
+        };
+        return;
+      }
+
+      // Load all data
+      await Promise.all([
+        fetchConfig(),
+        fetchSchools(),
+        fetchClasses(),
+        fetchTeachers(),
+        fetchReviews(),
+        fetchUsers(),
+        fetchDiscussions()
+      ]);
+
+      app.innerHTML = `
+        <div class="container">
+          <h1>Admin Dashboard</h1>
+          <div style="text-align: right; margin-bottom: 20px;">
+            <button onclick="logout()">Logout</button>
+          </div>
+
+          <div class="tabs">
+            <button class="tab ${currentTab === 'dashboard' ? 'active' : ''}" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab ${currentTab === 'schools' ? 'active' : ''}" onclick="switchTab('schools')">Schools</button>
+            <button class="tab ${currentTab === 'classes' ? 'active' : ''}" onclick="switchTab('classes')">Classes</button>
+            <button class="tab ${currentTab === 'teachers' ? 'active' : ''}" onclick="switchTab('teachers')">Teachers</button>
+            <button class="tab ${currentTab === 'reviews' ? 'active' : ''}" onclick="switchTab('reviews')">Reviews</button>
+            <button class="tab ${currentTab === 'users' ? 'active' : ''}" onclick="switchTab('users')">Users</button>
+            <button class="tab ${currentTab === 'discussions' ? 'active' : ''}" onclick="switchTab('discussions')">Discussions</button>
+            <button class="tab ${currentTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')">Settings</button>
+          </div>
+
+          ${currentTab === 'dashboard' ? `
+            <div class="tab-content active">
+              <h2>System Overview</h2>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-number">${schools.length}</div>
+                  <div class="stat-label">Schools</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">${classes.length}</div>
+                  <div class="stat-label">Classes</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">${teachers.length}</div>
+                  <div class="stat-label">Teachers</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">${reviews.length}</div>
+                  <div class="stat-label">Reviews</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">${users.length}</div>
+                  <div class="stat-label">Users</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number">${discussions.length}</div>
+                  <div class="stat-label">Discussions</div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'schools' ? `
+            <div class="tab-content active">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Schools Management</h2>
+                <button onclick="showAddSchoolModal()">Add School</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${schools.map(school => `
+                    <tr>
+                      <td>${school.name}</td>
+                      <td>${new Date(school.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <button class="btn-danger" onclick="handleDeleteSchool('${school._id}')">Delete</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'classes' ? `
+            <div class="tab-content active">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Classes Management</h2>
+                <button onclick="showAddClassModal()">Add Class</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>School</th>
+                    <th>Class Name</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${classes.map(cls => `
+                    <tr>
+                      <td>${cls.schoolName}</td>
+                      <td>${cls.name}</td>
+                      <td>${new Date(cls.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <button class="btn-danger" onclick="handleDeleteClass('${cls._id}')">Delete</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'teachers' ? `
+            <div class="tab-content active">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Teachers Management</h2>
+                <button onclick="showAddTeacherModal()">Add Teacher</button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>School</th>
+                    <th>Class</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${teachers.map(teacher => `
+                    <tr>
+                      <td>${teacher.name}</td>
+                      <td>${teacher.school?.name || 'N/A'}</td>
+                      <td>${teacher.class?.name || 'N/A'}</td>
+                      <td>${teacher.averageRating.toFixed(1)} ★ (${teacher.totalRatings})</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button onclick='showEditTeacherModal(${JSON.stringify(teacher)})'>Edit</button>
+                          <button class="btn-danger" onclick="handleDeleteTeacher('${teacher._id}')">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'reviews' ? `
+            <div class="tab-content active">
+              <h2>Reviews Management</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Teacher</th>
+                    <th>User</th>
+                    <th>Review</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${reviews.map(review => `
+                    <tr>
+                      <td>${review.teacher?.name || 'N/A'}</td>
+                      <td>${review.username}</td>
+                      <td style="max-width: 300px;">${review.text}</td>
+                      <td>${new Date(review.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <button class="btn-danger" onclick="handleDeleteReview('${review._id}')">Delete</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'users' ? `
+            <div class="tab-content active">
+              <h2>Users Management</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>School</th>
+                    <th>Class</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${users.map(user => `
+                    <tr>
+                      <td>${user.username}</td>
+                      <td>${user.school?.name || 'Not set'}</td>
+                      <td>${user.class?.name || 'Not set'}</td>
+                      <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button onclick="handleResetPassword('${user._id}')">Reset Password</button>
+                          <button class="btn-danger" onclick="handleDeleteUser('${user._id}')">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'discussions' ? `
+            <div class="tab-content active">
+              <h2>Discussions Management</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Pinned</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${discussions.map(msg => `
+                    <tr>
+                      <td>${msg.username}</td>
+                      <td style="max-width: 400px;">${msg.message}</td>
+                      <td>${new Date(msg.createdAt).toLocaleString()}</td>
+                      <td>${msg.isPinned ? '📌 Yes' : 'No'}</td>
+                      <td>
+                        <div class="action-buttons">
+                          <button onclick="handleTogglePin('${msg._id}')">${msg.isPinned ? 'Unpin' : 'Pin'}</button>
+                          <button class="btn-danger" onclick="handleDeleteDiscussion('${msg._id}')">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : ''}
+
+          ${currentTab === 'settings' ? `
+            <div class="tab-content active">
+              <h2>System Settings</h2>
+              
+              <div class="toggle-section">
+                <h3 style="margin-bottom: 20px;">Master Toggles</h3>
+                
+                <div class="toggle-item">
+                  <div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">Anonymous Reviews</div>
+                    <div style="font-size: 14px; color: #CCC;">Hide usernames from all reviews</div>
+                  </div>
+                  <div class="toggle-switch ${config.anonymousReviews ? 'active' : ''}" onclick="toggleConfig('anonymousReviews')">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
+
+                <div class="toggle-item">
+                  <div>
+                    <div style="font-weight: bold; margin-bottom: 5px;">Hide Teacher Images</div>
+                    <div style="font-size: 14px; color: #CCC;">Display black sections instead of teacher images</div>
+                  </div>
+                  <div class="toggle-switch ${config.hideTeacherImages ? 'active' : ''}" onclick="toggleConfig('hideTeacherImages')">
+                    <div class="toggle-slider"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h3>Important Notes</h3>
+                <ul style="margin-top: 15px; padding-left: 20px; color: #CCC; line-height: 1.8;">
+                  <li>These toggles affect all users immediately</li>
+                  <li>Anonymous reviews will hide usernames but preserve review content</li>
+                  <li>Hidden teacher images will show as black sections while maintaining the layout</li>
+                  <li>To change the admin secret, update it directly in the database</li>
+                </ul>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div id="modal" class="modal"></div>
+      `;
+    }
+
+    render();
+  </script>
+</body>
+</html>
