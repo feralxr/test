@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAN0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080808;
+      --bg1: #0f0f0f;
+      --bg2: #141414;
+      --line: #1c1c1c;
+      --dim: #3a3a3a;
+      --mid: #555;
+      --fg: #c0c0c0;
+      --white: #f0f0f0;
+      --green: #39ff14;
+      --cyan: #00d4ff;
+      --amber: #ffb700;
+      --red: #ff3333;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--mono);
+      overflow: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, .07) 3px, rgba(0, 0, 0, .07) 4px);
+      pointer-events: none;
+      z-index: 9000;
+    }
+
+    /* ── BOOT ──────────────────────────────────── */
+    #boot {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 64px;
+      z-index: 8000;
+      transition: opacity .45s;
+    }
+
+    .bl {
+      font-size: 13px;
+      line-height: 2.4;
+      color: var(--dim);
+      opacity: 0;
+      animation: blfade .12s forwards;
+    }
+
+    .bl.w {
+      color: var(--fg);
+    }
+
+    .bl.g {
+      color: var(--green);
+    }
+
+    .bl.h {
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 5px;
+      line-height: 3;
+    }
+
+    @keyframes blfade {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ── APP ───────────────────────────────────── */
+    #app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 46px 1fr 26px;
+      opacity: 0;
+      transition: opacity .35s;
+    }
+
+    #app.visible {
+      opacity: 1;
+    }
+
+    /* ── TOPBAR ────────────────────────────────── */
+    #topbar {
+      display: flex;
+      align-items: center;
+      background: var(--bg1);
+      border-bottom: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .tb-logo {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--white);
+      padding: 0 22px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    .tb-logo em {
+      color: var(--green);
+      font-style: normal;
+    }
+
+    .tb-crumb {
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      padding: 0 20px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid var(--line);
+    }
+
+    .tb-crumb span {
+      color: var(--mid);
+    }
+
+    .tb-crumb .sep {
+      margin: 0 8px;
+      color: var(--dim);
+    }
+
+    .tb-spacer {
+      flex: 1;
+    }
+
+    .tb-right {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .tb-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 18px;
+      height: 100%;
+      border-left: 1px solid var(--line);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--dim);
+    }
+
+    .tb-pill.user {
+      color: var(--cyan);
+    }
+
+    .tb-online {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tb-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: dotblink 2s infinite;
+    }
+
+    @keyframes dotblink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .15
+      }
+    }
+
+    .tb-logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 18px;
+      height: 100%;
+      border-left: 1px solid var(--line);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--mid);
+      cursor: pointer;
+      transition: all .12s;
+      background: none;
+      border-top: none;
+      border-bottom: none;
+      border-right: none;
+      font-family: var(--mono);
+    }
+
+    .tb-logout-btn:hover {
+      color: var(--red);
+      background: rgba(255, 51, 51, .05);
+    }
+
+    /* ── BODY ──────────────────────────────────── */
+    #body {
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ───────────────────────────────── */
+    #nav {
+      width: 190px;
+      min-width: 190px;
+      background: var(--bg1);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      padding: 18px 0;
+    }
+
+    .nav-group {
+      margin-bottom: 6px;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--dim);
+      padding: 0 16px 8px;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      font-size: 12px;
+      color: var(--mid);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all .12s;
+    }
+
+    .nav-item:hover {
+      color: var(--fg);
+      background: var(--bg2);
+    }
+
+    .nav-item.active {
+      color: var(--white);
+      border-left-color: var(--green);
+      background: var(--bg2);
+    }
+
+    .nav-item .icon {
+      font-size: 12px;
+      opacity: .6;
+    }
+
+    .nav-item.disabled {
+      opacity: .28;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .nav-sep {
+      height: 1px;
+      background: var(--line);
+      margin: 12px 16px;
+    }
+
+    /* ── CONTENT ───────────────────────────────── */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 36px 44px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+    }
+
+    #content::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    #content::-webkit-scrollbar-thumb {
+      background: var(--line);
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: scr .2s ease;
+    }
+
+    @keyframes scr {
+      from {
+        opacity: 0;
+        transform: translateY(5px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* ── USERNAME SCREEN ───────────────────────── */
+    .u-wrap {
+      max-width: 480px;
+    }
+
+    .path-line {
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .path-line .arrow {
+      color: var(--green);
+    }
+
+    .u-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .u-sub {
+      font-size: 12px;
+      color: var(--mid);
+      line-height: 1.9;
+      margin-bottom: 30px;
+    }
+
+    .fl {
+      margin-bottom: 20px;
+    }
+
+    .fl-label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--mid);
+      margin-bottom: 8px;
+      display: block;
+      text-transform: uppercase;
+    }
+
+    .t-inp {
+      background: var(--bg1);
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--green);
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: 17px;
+      padding: 11px 14px;
+      width: 100%;
+      outline: none;
+      letter-spacing: 2px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .t-inp:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(57, 255, 20, .07);
+    }
+
+    .t-inp::placeholder {
+      color: var(--dim);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .inline-err {
+      font-size: 11px;
+      color: var(--red);
+      letter-spacing: 1px;
+      margin-top: 7px;
+      min-height: 15px;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 11px 24px;
+      cursor: pointer;
+      border: none;
+      transition: all .12s;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-g {
+      background: var(--green);
+      color: #000;
+    }
+
+    .btn-g:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 0 18px rgba(57, 255, 20, .3);
+      transform: translateY(-1px);
+    }
+
+    .btn-gh {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid var(--line);
+    }
+
+    .btn-gh:hover {
+      border-color: var(--fg);
+      color: var(--white);
+    }
+
+    .btn:disabled {
+      opacity: .3;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ── GAMES SCREEN ──────────────────────────── */
+    .g-header {
+      margin-bottom: 24px;
+    }
+
+    .g-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .g-sub {
+      font-size: 12px;
+      color: var(--mid);
+    }
+
+    .games-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 680px;
+    }
+
+    .game-row {
+      background: var(--bg1);
+      border: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 54px 1fr auto;
+      cursor: pointer;
+      transition: all .15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-row::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--green);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform .2s;
+    }
+
+    .game-row:hover {
+      border-color: #252525;
+      background: var(--bg2);
+    }
+
+    .game-row:hover::after {
+      transform: scaleY(1);
+    }
+
+    .game-row.locked {
+      opacity: .3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .gr-idx {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--dim);
+      border-right: 1px solid var(--line);
+    }
+
+    .game-row:hover .gr-idx {
+      color: var(--mid);
+    }
+
+    .gr-body {
+      padding: 16px 18px;
+    }
+
+    .gr-tag {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--mid);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .gr-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .gr-desc {
+      font-size: 11px;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+
+    .gr-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-left: 1px solid var(--line);
+      min-width: 106px;
+    }
+
+    .gr-side-item {
+      font-size: 10px;
+      color: var(--dim);
+    }
+
+    .gr-side-item strong {
+      display: block;
+      font-size: 12px;
+      color: var(--fg);
+      font-weight: 400;
+      margin-bottom: 1px;
+    }
+
+    /* ── ROOM MODAL ────────────────────────────── */
+    #modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .82);
+      backdrop-filter: blur(3px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-bg.open {
+      display: flex;
+    }
+
+    #modal {
+      background: var(--bg1);
+      border: 1px solid #252525;
+      border-top: 2px solid var(--green);
+      width: 500px;
+      padding: 28px;
+      animation: mup .18s ease;
+    }
+
+    @keyframes mup {
+      from {
+        transform: translateY(12px);
+        opacity: 0
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
+
+    .m-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-bottom: 22px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 22px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 9px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--mid);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all .12s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+
+    .tab.active {
+      color: var(--white);
+      border-bottom-color: var(--green);
+    }
+
+    .tp {
+      display: none;
+    }
+
+    .tp.active {
+      display: block;
+    }
+
+    .m-hint {
+      font-size: 11px;
+      color: var(--mid);
+      margin-top: 8px;
+    }
+
+    .m-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    /* ── ROOMS LIST ────────────────────────────── */
+    #rooms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 60px;
+    }
+
+    .room-entry {
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--dim);
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      gap: 14px;
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .room-entry:hover {
+      border-color: var(--green);
+      border-left-color: var(--green);
+      background: rgba(57, 255, 20, .03);
+    }
+
+    .room-entry:hover .re-join {
+      color: var(--green);
+    }
+
+    .re-code {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      color: var(--white);
+      min-width: 60px;
+    }
+
+    .re-info {
+      flex: 1;
+    }
+
+    .re-host {
+      font-size: 10px;
+      color: var(--mid);
+      letter-spacing: 1px;
+    }
+
+    .re-players {
+      font-size: 11px;
+      color: var(--dim);
+      margin-top: 2px;
+    }
+
+    .re-join {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 2px;
+      transition: color .12s;
+    }
+
+    .rooms-empty {
+      font-size: 12px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      padding: 12px 0;
+    }
+
+    #rooms-refresh {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color .12s;
+      margin-bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      padding: 0;
+    }
+
+    #rooms-refresh:hover {
+      color: var(--fg);
+    }
+
+    /* ── TOAST ─────────────────────────────────── */
+    #toast-wrap {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--bg1);
+      border: 1px solid var(--line);
+      border-left: 3px solid;
+      padding: 12px 16px;
+      min-width: 280px;
+      max-width: 360px;
+      animation: toastin .2s ease;
+      pointer-events: all;
+    }
+
+    .toast.err {
+      border-left-color: var(--red);
+    }
+
+    .toast.warn {
+      border-left-color: var(--amber);
+    }
+
+    .toast.ok {
+      border-left-color: var(--green);
+    }
+
+    @keyframes toastin {
+      from {
+        opacity: 0;
+        transform: translateX(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes toastout {
+      from {
+        opacity: 1;
+        transform: none
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(12px)
+      }
+    }
+
+    .toast-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .toast-tag {
+      font-size: 9px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .toast.err .toast-tag {
+      color: var(--red);
+    }
+
+    .toast.warn .toast-tag {
+      color: var(--amber);
+    }
+
+    .toast.ok .toast-tag {
+      color: var(--green);
+    }
+
+    .toast-close {
+      font-size: 14px;
+      color: var(--dim);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .toast-close:hover {
+      color: var(--fg);
+    }
+
+    .toast-msg {
+      font-size: 12px;
+      color: var(--fg);
+      line-height: 1.6;
+      letter-spacing: .3px;
+    }
+
+    /* ── STATUS BAR ────────────────────────────── */
+    #sbar {
+      display: flex;
+      align-items: center;
+      background: var(--bg1);
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--dim);
+      overflow: hidden;
+    }
+
+    .sb-seg {
+      padding: 0 16px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-right: 1px solid var(--line);
+    }
+
+    .sb-seg .v {
+      color: var(--mid);
+    }
+
+    .sb-spacer {
+      flex: 1;
+    }
+
+    #sb-clock {
+      padding: 0 16px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-left: 1px solid var(--line);
+      font-variant-numeric: tabular-nums;
+      color: var(--mid);
+    }
+
+    #sb-session-timer {
+      padding: 0 16px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-left: 1px solid var(--line);
+      color: var(--dim);
+    }
+
+    #sb-session-timer .v {
+      color: var(--mid);
+    }
+
+    /* ── PLAYERS SIDEBAR BADGE ─────────────────── */
+    .nav-badge {
+      margin-left: auto;
+      background: var(--bg2);
+      border: 1px solid var(--line);
+      color: var(--dim);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 2px;
+      min-width: 18px;
+      text-align: center;
+      transition: all .12s;
+    }
+
+    .nav-item.active .nav-badge {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* ── PLAYERS SCREEN ─────────────────────────── */
+    .pl-header {
+      margin-bottom: 24px;
+    }
+
+    #players-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 560px;
+    }
+
+    .pl-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 80px 90px;
+      align-items: center;
+      padding: 9px 14px;
+      background: var(--bg1);
+      border: 1px solid var(--line);
+      border-left: 2px solid transparent;
+      gap: 10px;
+      transition: all .12s;
+    }
+
+    .pl-row.is-me {
+      border-left-color: var(--green);
+    }
+
+    .pl-row:hover {
+      background: var(--bg2);
+    }
+
+    .pl-num {
+      font-size: 10px;
+      color: var(--dim);
+      text-align: right;
+    }
+
+    .pl-name {
+      font-size: 13px;
+      color: var(--white);
+      letter-spacing: .5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pl-name .you-tag {
+      font-size: 9px;
+      color: var(--green);
+      letter-spacing: 2px;
+      margin-left: 8px;
+    }
+
+    .pl-status {
+      font-size: 9px;
+      letter-spacing: 2px;
+      padding: 2px 7px;
+      border: 1px solid;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .pl-status.hub {
+      color: var(--dim);
+      border-color: var(--line);
+    }
+
+    .pl-status.ingame {
+      color: var(--amber);
+      border-color: rgba(255, 183, 0, .4);
+    }
+
+    .pl-room {
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pl-room .room-code {
+      font-weight: 700;
+      color: var(--mid);
+      letter-spacing: 2px;
+    }
+
+    .pl-empty {
+      font-size: 12px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      padding: 20px 0;
+    }
+
+    /* ── SIDEBAR ONLINE LIST ───────────────────── */
+    #nav-online {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    #nav-online::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-ol-hdr {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--dim);
+      padding: 10px 16px 7px;
+      text-transform: uppercase;
+      border-top: 1px solid var(--line);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .nav-pl {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      transition: background .1s;
+      overflow: hidden;
+    }
+
+    .nav-pl:hover {
+      background: var(--bg2);
+    }
+
+    .nav-pl-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .nav-pl-dot.hub {
+      background: var(--dim);
+    }
+
+    .nav-pl-dot.ingame {
+      background: var(--amber);
+    }
+
+    .nav-pl-dot.me {
+      background: var(--green);
+    }
+
+    .nav-pl-name {
+      font-size: 11px;
+      color: var(--mid);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+
+    .nav-pl-name.me {
+      color: var(--white);
+    }
+
+    .nav-pl-room {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .nav-pl-room.ingame {
+      color: var(--amber);
+      opacity: .7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BOOT -->
+  <div id="boot">
+    <div class="bl h" style="animation-delay:.05s">LAN0</div>
+    <div class="bl w" style="animation-delay:.2s">Local Area Network Hub — v1.0.0</div>
+    <div class="bl" style="animation-delay:.5s">Binding to 0.0.0.0:3000...</div>
+    <div class="bl g" style="animation-delay:.85s">[ OK ] Network interface detected</div>
+    <div class="bl g" style="animation-delay:1.1s">[ OK ] Game modules loaded (1 active)</div>
+    <div class="bl" style="animation-delay:1.45s">[ OK ] Ready. Awaiting connection...<span id="boot-cursor"
+        style="animation:dotblink 1s infinite;display:inline-block">_</span></div>
+  </div>
+
+  <!-- APP -->
+  <div id="app">
+
+    <!-- TOPBAR -->
+    <div id="topbar">
+      <div class="tb-logo">LAN<em>0</em></div>
+      <div class="tb-crumb" id="tb-crumb"><span>hub</span></div>
+      <div class="tb-spacer"></div>
+      <div class="tb-right">
+        <div class="tb-pill">
+          <div class="tb-online">
+            <div class="tb-dot"></div>online
+          </div>
+        </div>
+        <div class="tb-pill user" id="tb-user" style="display:none"></div>
+        <button class="tb-logout-btn" id="logout-btn" style="display:none" title="End session">⏻ logout</button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div id="body">
+
+      <!-- SIDEBAR -->
+      <div id="nav">
+        <div class="nav-group">
+          <span class="nav-label">Main</span>
+          <div class="nav-item active" data-screen="games"><span class="icon">◈</span> Games</div>
+        </div>
+        <div class="nav-sep"></div>
+        <div class="nav-group">
+          <span class="nav-label">System</span>
+          <div class="nav-item" data-screen="players"><span class="icon">◉</span> Players<span class="nav-badge"
+              id="players-badge">0</span></div>
+        </div>
+        <div id="nav-online">
+          <div class="nav-ol-hdr">online</div>
+          <div id="nav-pl-list"></div>
+        </div>
+      </div>
+
+      <!-- CONTENT -->
+      <div id="content">
+
+        <!-- USERNAME SCREEN -->
+        <div class="screen active" id="screen-username">
+          <div class="u-wrap">
+            <div class="path-line"><span class="arrow">›</span> lan0 / identify</div>
+            <div class="u-title">ENTER YOUR USERNAME</div>
+            <div class="u-sub">Pick a username to access the hub.<br>Current Session length: 40mins</div>
+            <div class="fl">
+              <label class="fl-label" for="u-inp">Username</label>
+              <input class="t-inp" id="u-inp" type="text" maxlength="16" placeholder="enter username" autocomplete="off"
+                spellcheck="false">
+              <div class="inline-err" id="u-err"></div>
+            </div>
+            <button class="btn btn-g" id="u-btn">ACCESS HUB ›</button>
+          </div>
+        </div>
+
+        <!-- GAMES SCREEN -->
+        <div class="screen" id="screen-games">
+          <div class="g-header">
+            <div class="path-line"><span class="arrow">›</span> lan0 / games</div>
+            <div class="g-title">GAME SELECT</div>
+            <div class="g-sub">Pick a game, create a room, share the code with people on this network.</div>
+          </div>
+
+          <div class="games-list">
+            <div class="game-row" id="game-reaction">
+              <div class="gr-idx">01</div>
+              <div class="gr-body">
+                <div class="gr-tag">skill · reflex</div>
+                <div class="gr-name">REACTION TIME</div>
+                <div class="gr-desc">F1 Style Reaction Time Test</div>
+              </div>
+              <div class="gr-side">
+                <div class="gr-side-item"><strong>1 – 8</strong>players</div>
+                <div class="gr-side-item"><strong>~60s</strong>per round</div>
+              </div>
+            </div>
+
+            <div class="game-row locked">
+              <div class="gr-idx">02</div>
+              <div class="gr-body">
+                <div class="gr-tag"></div>
+                <div class="gr-name">COMING SOON</div>
+                <div class="gr-desc"></div>
+              </div>
+              <div class="gr-side">
+                <div class="gr-side-item"><strong></strong></div>
+                <div class="gr-side-item"><strong></strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- PLAYERS SCREEN -->
+        <div class="screen" id="screen-players">
+          <div class="pl-header">
+            <div class="path-line"><span class="arrow">›</span> lan0 / players</div>
+            <div class="g-title">ONLINE PLAYERS</div>
+            <div class="g-sub">All users currently connected to this hub.</div>
+          </div>
+          <div id="players-grid">
+            <div class="pl-empty">No players online.</div>
+          </div>
+        </div>
+      </div><!-- /content -->
+    </div><!-- /body -->
+
+    <!-- STATUSBAR -->
+    <div id="sbar">
+      <div class="sb-seg">lan0</div>
+      <div class="sb-seg"><span>v</span><span class="v">1.0</span></div>
+      <div class="sb-seg"><span>mode</span><span class="v">LAN</span></div>
+      <div class="sb-seg" id="sb-user-seg" style="display:none"><span>user</span><span class="v"
+          id="sb-user-val"></span></div>
+      <div class="sb-spacer"></div>
+      <div id="sb-session-timer" style="display:none"><span>session</span><span class="v" id="sb-sess-val">40:00</span>
+      </div>
+      <div id="sb-clock">--:--:--</div>
+    </div>
+  </div>
+
+  <!-- ROOM MODAL -->
+  <div id="modal-bg">
+    <div id="modal">
+      <div class="m-title">REACTION TIME // ROOM</div>
+      <div class="tabs">
+        <button class="tab active" data-tab="create">CREATE</button>
+        <button class="tab" data-tab="join">JOIN BY CODE</button>
+        <button class="tab" data-tab="browse">BROWSE ROOMS</button>
+      </div>
+
+      <!-- CREATE TAB -->
+      <div class="tp active" id="tp-create">
+        <div style="font-size:12px;color:var(--mid);line-height:1.9;margin-bottom:4px;">
+          Start a new room and share the 4-letter code with anyone on this network.
+        </div>
+        <div class="m-btns">
+          <button class="btn btn-g" id="btn-create">CREATE ROOM ›</button>
+          <button class="btn btn-gh" id="btn-cancel">CANCEL</button>
+        </div>
+      </div>
+
+      <!-- JOIN BY CODE TAB -->
+      <div class="tp" id="tp-join">
+        <div class="fl">
+          <label class="fl-label">Room Code</label>
+          <input class="t-inp" id="join-inp" type="text" maxlength="4" placeholder="XXXX" autocomplete="off"
+            spellcheck="false" style="font-size:26px;letter-spacing:10px;max-width:190px;">
+          <div class="inline-err" id="join-err"></div>
+          <div class="m-hint">Ask the host for their 4-letter code.</div>
+        </div>
+        <div class="m-btns">
+          <button class="btn btn-g" id="btn-join">JOIN ›</button>
+          <button class="btn btn-gh" id="btn-cancel2">CANCEL</button>
+        </div>
+      </div>
+
+      <!-- BROWSE ROOMS TAB -->
+      <div class="tp" id="tp-browse">
+        <button id="rooms-refresh">⟳ REFRESH</button>
+        <div id="rooms-list">
+          <div class="rooms-empty">No active rooms right now.</div>
+        </div>
+        <div class="m-btns" style="margin-top:16px;">
+          <button class="btn btn-gh" id="btn-cancel3">CANCEL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-wrap"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // ── Session (40 min localStorage) ─────────────────────────────────────────────
+    const SESSION_MS = 40 * 60 * 1000;
+    const SESS_KEY = 'lan0_session';
+    const BOOT_KEY = 'lan0_booted';
+
+    function saveSession(user) {
+      localStorage.setItem(SESS_KEY, JSON.stringify({ user, ts: Date.now() }));
+    }
+    function loadSession() {
+      try {
+        const s = JSON.parse(localStorage.getItem(SESS_KEY));
+        if (!s) return null;
+        if (Date.now() - s.ts > SESSION_MS) { localStorage.removeItem(SESS_KEY); return null; }
+        return s;
+      } catch { return null; }
+    }
+    function clearSession() { localStorage.removeItem(SESS_KEY); }
+    function sessionRemaining(ts) { return Math.max(0, SESSION_MS - (Date.now() - ts)); }
+
+    // ── Toast ──────────────────────────────────────────────────────────────────────
+    function toast(type, title, msg, duration = 4000) {
+      const wrap = document.getElementById('toast-wrap');
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `
+    <div class="toast-top">
+      <span class="toast-tag">${title}</span>
+      <span class="toast-close" onclick="this.closest('.toast').remove()">✕</span>
+    </div>
+    <div class="toast-msg">${msg}</div>`;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.style.animation = 'toastout .2s ease forwards';
+        setTimeout(() => el.remove(), 200);
+      }, duration);
+    }
+
+    // ── Socket ─────────────────────────────────────────────────────────────────────
+    const socket = io();
+    let myUser = '';
+    let activeGame = '';
+    let sessTs = null;
+    let sessInterval = null;
+
+    // ── Boot (only once per browser session) ──────────────────────────────────────
+    const hasBooted = sessionStorage.getItem(BOOT_KEY);
+
+    if (hasBooted) {
+      // Skip boot animation entirely
+      document.getElementById('boot').remove();
+      document.getElementById('app').classList.add('visible');
+      initSession();
+    } else {
+      sessionStorage.setItem(BOOT_KEY, '1');
+      setTimeout(() => {
+        document.getElementById('boot').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('boot').remove();
+          document.getElementById('app').classList.add('visible');
+          initSession();
+        }, 450);
+      }, 2200);
+    }
+
+    // ── Clock ──────────────────────────────────────────────────────────────────────
+    setInterval(() => {
+      document.getElementById('sb-clock').textContent = new Date().toLocaleTimeString('en-GB');
+    }, 1000);
+
+    // ── Session init ───────────────────────────────────────────────────────────────
+    function initSession() {
+      const s = loadSession();
+      if (s) {
+        myUser = s.user;
+        sessTs = s.ts;
+        activateUser(false);
+      }
+    }
+
+    function activateUser(saveToStorage = true) {
+      if (saveToStorage) saveSession(myUser);
+
+      document.getElementById('tb-user').textContent = myUser;
+      document.getElementById('tb-user').style.display = 'flex';
+      document.getElementById('logout-btn').style.display = 'flex';
+      document.getElementById('tb-crumb').innerHTML = '<span>hub</span><span class="sep">/</span><span>games</span>';
+      document.getElementById('sb-user-seg').style.display = 'flex';
+      document.getElementById('sb-user-val').textContent = myUser;
+      document.getElementById('sb-session-timer').style.display = 'flex';
+
+      if (!sessTs) sessTs = Date.now();
+      startSessionTimer();
+      showScreen('games');
+    }
+
+    function startSessionTimer() {
+      clearInterval(sessInterval);
+      sessInterval = setInterval(() => {
+        const rem = sessionRemaining(sessTs);
+        if (rem <= 0) { doLogout(); return; }
+        const m = String(Math.floor(rem / 60000)).padStart(2, '0');
+        const s = String(Math.floor((rem % 60000) / 1000)).padStart(2, '0');
+        document.getElementById('sb-sess-val').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+
+    function doLogout() {
+      clearInterval(sessInterval);
+      clearSession();
+      myUser = ''; sessTs = null;
+      document.getElementById('tb-user').style.display = 'none';
+      document.getElementById('logout-btn').style.display = 'none';
+      document.getElementById('sb-user-seg').style.display = 'none';
+      document.getElementById('sb-session-timer').style.display = 'none';
+      document.getElementById('tb-crumb').innerHTML = '<span>hub</span>';
+      document.querySelectorAll('.nav-item[data-screen]').forEach(i => {
+        i.classList.toggle('active', i.dataset.screen === 'username');
+      });
+      showScreen('username');
+      toast('ok', 'Session Ended', 'You have been logged out.');
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', doLogout);
+
+    // ── Screens ────────────────────────────────────────────────────────────────────
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + name).classList.add('active');
+    }
+
+    // ── Username submit ────────────────────────────────────────────────────────────
+    const uInp = document.getElementById('u-inp');
+    uInp.addEventListener('keydown', e => { if (e.key === 'Enter') doUser(); });
+    document.getElementById('u-btn').addEventListener('click', doUser);
+
+    function doUser() {
+      const v = uInp.value.trim().replace(/\s+/g, '');
+      if (v.length < 2) { document.getElementById('u-err').textContent = 'Min 2 characters.'; return; }
+      const candidate = v.toLowerCase();
+      document.getElementById('u-err').textContent = '';
+
+      // Atomically claim username on server
+      socket.emit('claim_username', { username: candidate });
+      socket.once('username_claim_result', ({ ok, reason, username: confirmedUser }) => {
+        if (!ok) {
+          document.getElementById('u-err').textContent = reason;
+          return;
+        }
+        myUser = confirmedUser; // server returns normalized lowercase
+        sessTs = Date.now();
+        activateUser(true);
+      });
+    }
+
+    // ── Nav ────────────────────────────────────────────────────────────────────────
+    document.querySelectorAll('.nav-item[data-screen]').forEach(item => {
+      item.addEventListener('click', () => {
+        if (!myUser) return;
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        showScreen(item.dataset.screen);
+      });
+    });
+
+    // ── Game click ─────────────────────────────────────────────────────────────────
+    document.getElementById('game-reaction').addEventListener('click', () => {
+      if (!myUser) return;
+      activeGame = 'reaction';
+      openModal('create');
+    });
+
+    // ── Modal ──────────────────────────────────────────────────────────────────────
+    function openModal(tab) {
+      document.getElementById('modal-bg').classList.add('open');
+      switchTab(tab);
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tp').forEach(x => x.classList.remove('active'));
+      document.querySelector(`.tab[data-tab="${name}"]`).classList.add('active');
+      document.getElementById('tp-' + name).classList.add('active');
+      document.getElementById('join-err').textContent = '';
+
+      if (name === 'join') {
+        // Auto-focus the join code input
+        setTimeout(() => document.getElementById('join-inp').focus(), 50);
+      }
+      if (name === 'browse') {
+        socket.emit('get_room_list');
+      }
+    }
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', () => switchTab(t.dataset.tab));
+    });
+
+    function closeModal() {
+      document.getElementById('modal-bg').classList.remove('open');
+      document.getElementById('join-err').textContent = '';
+      document.getElementById('join-inp').value = '';
+    }
+    document.getElementById('btn-cancel').addEventListener('click', closeModal);
+    document.getElementById('btn-cancel2').addEventListener('click', closeModal);
+    document.getElementById('btn-cancel3').addEventListener('click', closeModal);
+    document.getElementById('modal-bg').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal-bg')) closeModal();
+    });
+
+    // ── Create room ────────────────────────────────────────────────────────────────
+    document.getElementById('btn-create').addEventListener('click', () => {
+      socket.emit('create_room', { username: myUser, gameType: activeGame });
+    });
+
+    socket.on('room_created', ({ roomId }) => {
+      closeModal();
+      window.location.href = `/reaction.html?room=${roomId}&host=1`;
+    });
+
+    // ── Join room by code ──────────────────────────────────────────────────────────
+    const joinInp = document.getElementById('join-inp');
+    joinInp.addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+    joinInp.addEventListener('keydown', e => { if (e.key === 'Enter') doJoin(); });
+    document.getElementById('btn-join').addEventListener('click', doJoin);
+
+    function doJoin(code) {
+      const roomCode = (code || joinInp.value).trim();
+      if (roomCode.length !== 4) { document.getElementById('join-err').textContent = 'Code must be 4 characters.'; return; }
+      socket.emit('join_room', { username: myUser, roomId: roomCode });
+    }
+
+    socket.on('room_joined', ({ roomId }) => {
+      closeModal();
+      window.location.href = `/reaction.html?room=${roomId}&host=0`;
+    });
+
+    socket.on('join_error', msg => {
+      toast('err', 'Error', msg);
+      document.getElementById('join-err').textContent = msg;
+    });
+
+    // ── Browse Rooms ───────────────────────────────────────────────────────────────
+    socket.on('room_list', rooms => {
+      const list = document.getElementById('rooms-list');
+      if (!rooms || rooms.length === 0) {
+        list.innerHTML = '<div class="rooms-empty">No active rooms right now.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      rooms.forEach(r => {
+        const gameLabel = r.gameType === 'reaction' ? 'REACTION TIME' : r.gameType.toUpperCase();
+        const div = document.createElement('div');
+        div.className = 'room-entry';
+        div.innerHTML = `
+          <div class="re-code">${r.id}</div>
+          <div class="re-info">
+            <div class="re-host">${gameLabel} · HOST: ${r.hostUsername}</div>
+            <div class="re-players">${r.playerCount} player${r.playerCount !== 1 ? 's' : ''} in lobby</div>
+          </div>
+          <div class="re-join">JOIN ›</div>`;
+        div.addEventListener('click', () => {
+          socket.emit('join_room', { username: myUser, roomId: r.id });
+        });
+        list.appendChild(div);
+      });
+    });
+
+    document.getElementById('rooms-refresh').addEventListener('click', () => {
+      socket.emit('get_room_list');
+    });
+
+    // ── Players list ───────────────────────────────────────────────────────────────
+    socket.on('players_list', players => {
+      const badge = document.getElementById('players-badge');
+      badge.textContent = players.length;
+
+      // ── Main page grid ──────────────────────────────
+      const grid = document.getElementById('players-grid');
+      if (players.length === 0) {
+        grid.innerHTML = '<div class="pl-empty">No players online.</div>';
+      } else {
+        grid.innerHTML = '';
+        players.forEach((p, i) => {
+          const isMe = p.username === myUser;
+          const inGame = !!p.roomId;
+          const row = document.createElement('div');
+          row.className = 'pl-row' + (isMe ? ' is-me' : '');
+          row.innerHTML = `
+            <div class="pl-num">${String(i + 1).padStart(2, '0')}</div>
+            <div class="pl-name">${esc(p.username)}${isMe ? '<span class="you-tag">you</span>' : ''}</div>
+            <div class="pl-status ${inGame ? 'ingame' : 'hub'}">${inGame ? 'in game' : 'hub'}</div>
+            <div class="pl-room">${inGame ? '<span class="room-code">' + p.roomId + '</span> · ' + esc(p.gameType || '') : '—'}</div>`;
+          grid.appendChild(row);
+        });
+      }
+
+      // ── Sidebar mini list ───────────────────────────
+      const sideList = document.getElementById('nav-pl-list');
+      sideList.innerHTML = '';
+      players.forEach(p => {
+        const isMe = p.username === myUser;
+        const inGame = !!p.roomId;
+        const row = document.createElement('div');
+        row.className = 'nav-pl';
+        row.title = inGame ? `in room ${p.roomId} · ${p.gameType || ''}` : 'on hub';
+        row.innerHTML = `
+          <div class="nav-pl-dot ${isMe ? 'me' : inGame ? 'ingame' : 'hub'}"></div>
+          <div class="nav-pl-name ${isMe ? 'me' : ''}">${esc(p.username)}</div>
+          ${inGame ? `<div class="nav-pl-room ingame">${p.roomId}</div>` : ''}`;
+        sideList.appendChild(row);
+      });
+    });
+
+    function esc(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  </script>
+</body>
+
+</html>
