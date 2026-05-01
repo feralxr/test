@@ -6,7 +6,6 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LAN0 · Reaction Time</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap"
     rel="stylesheet">
@@ -31,7 +30,7 @@
     * {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      box-sizing: border-box
     }
 
     html,
@@ -40,28 +39,26 @@
       background: var(--bg);
       color: var(--fg);
       font-family: var(--mono);
-      overflow: hidden;
+      overflow: hidden
     }
 
-    /* scanlines */
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, .1) 3px, rgba(0, 0, 0, .1) 4px);
       pointer-events: none;
-      z-index: 9000;
+      z-index: 9000
     }
 
-    /* ── LAYOUT ───────────────────────────────────── */
     #layout {
       display: grid;
       grid-template-rows: 46px 1fr;
       grid-template-columns: 190px 1fr 180px;
-      height: 100vh;
+      height: 100vh
     }
 
-    /* ── HEADER ───────────────────────────────────── */
+    /* header */
     #hdr {
       grid-column: 1/-1;
       display: flex;
@@ -69,108 +66,91 @@
       padding: 0 20px;
       gap: 16px;
       background: var(--bg1);
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
     }
 
-    .hdr-back {
+    #back-btn {
       font-size: 12px;
       color: var(--mid);
       cursor: pointer;
       letter-spacing: 1px;
       padding-right: 16px;
       border-right: 1px solid var(--line);
-      transition: color .12s;
+      transition: color .12s
     }
 
-    .hdr-back:hover {
-      color: var(--fg);
+    #back-btn:hover {
+      color: var(--fg)
     }
 
-    .hdr-brand {
-      font-family: var(--f1);
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--white);
-      padding-right: 16px;
-      border-right: 1px solid var(--line);
-    }
-
-    .hdr-brand em {
-      color: var(--red);
-      font-style: normal;
-    }
-
-    .hdr-game {
+    .hdr-title {
       font-family: var(--f1);
       font-size: 11px;
       letter-spacing: 3px;
-      color: var(--mid);
+      color: var(--mid)
     }
 
-    .hdr-right {
+    .hdr-r {
       margin-left: auto;
       display: flex;
       align-items: center;
       gap: 20px;
       font-size: 11px;
       letter-spacing: 1px;
-      color: var(--dim);
+      color: var(--dim)
     }
 
-    .hdr-right strong {
-      color: var(--fg);
+    .hdr-r strong {
+      color: var(--fg)
     }
 
-    .room-pill {
+    #hdr-room {
       font-family: var(--f1);
       font-size: 16px;
       font-weight: 900;
       letter-spacing: 6px;
       color: var(--red);
-      padding: 0 14px;
+      padding: 0 12px;
       border: 1px solid #2a0000;
-      background: rgba(225, 6, 0, .05);
+      background: rgba(225, 6, 0, .05)
     }
 
-    /* ── LEFT PANEL ───────────────────────────────── */
+    /* left */
     #pleft {
       background: var(--bg1);
       border-right: 1px solid var(--line);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: hidden
     }
 
-    .panel-hdr {
+    .phdr {
       font-size: 9px;
       letter-spacing: 3px;
       color: var(--dim);
       padding: 14px 16px 12px;
       border-bottom: 1px solid var(--line);
       text-transform: uppercase;
-      flex-shrink: 0;
+      flex-shrink: 0
     }
 
-    #driver-list {
+    #drvlist {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 0;
+      padding: 8px 0
     }
 
-    .drv-row {
+    .drv {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px 14px;
       font-size: 12px;
-      letter-spacing: .5px;
-      border-left: 2px solid transparent;
-      transition: all .12s;
+      border-left: 2px solid transparent
     }
 
-    .drv-row.me {
-      border-left-color: var(--red);
+    .drv.me {
+      border-left-color: var(--red)
     }
 
     .drv-dot {
@@ -178,7 +158,7 @@
       height: 7px;
       border-radius: 50%;
       background: var(--green);
-      flex-shrink: 0;
+      flex-shrink: 0
     }
 
     .drv-name {
@@ -186,65 +166,61 @@
       color: var(--white);
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: nowrap
     }
 
-    .drv-tag {
+    .drv-badge {
       font-size: 9px;
       letter-spacing: 1px;
       color: var(--dim);
       padding: 2px 6px;
-      border: 1px solid var(--dim);
+      border: 1px solid var(--dim)
     }
 
-    .drv-row.me .drv-tag {
+    .drv.me .drv-badge {
       border-color: var(--red);
-      color: var(--red);
+      color: var(--red)
     }
 
-    #log-box {
+    #logbox {
       border-top: 1px solid var(--line);
       padding: 10px 14px;
       overflow-y: auto;
-      max-height: 140px;
-      flex-shrink: 0;
+      max-height: 130px;
+      flex-shrink: 0
     }
 
-    .log-ln {
+    .logln {
       font-size: 10px;
       color: var(--dim);
-      line-height: 1.9;
+      line-height: 1.9
     }
 
-    .log-ln::before {
+    .logln::before {
       content: '» ';
-      color: var(--mid);
+      color: var(--mid)
     }
 
-    /* ── CENTER ───────────────────────────────────── */
+    /* center */
     #center {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
-      overflow: hidden;
-      gap: 0;
+      overflow: hidden
     }
 
-    /* subtle grid bg */
     #center::before {
       content: '';
       position: absolute;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(225, 6, 0, .02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(225, 6, 0, .02) 1px, transparent 1px);
-      background-size: 50px 50px;
+      background-image: linear-gradient(rgba(225, 6, 0, .02) 1px, transparent 1px), linear-gradient(90deg, rgba(225, 6, 0, .02) 1px, transparent 1px);
+      background-size: 50px 50px
     }
 
-    /* ── PANELS ───────────────────────────────────── */
-    .panel {
+    /* panels */
+    .pnl {
       display: none;
       flex-direction: column;
       align-items: center;
@@ -252,18 +228,18 @@
       z-index: 1;
       width: 100%;
       max-width: 600px;
-      padding: 0 24px;
+      padding: 0 24px
     }
 
-    .panel.on {
+    .pnl.on {
       display: flex;
-      animation: up .25s ease;
+      animation: up .2s ease
     }
 
     @keyframes up {
       from {
         opacity: 0;
-        transform: translateY(10px)
+        transform: translateY(6px)
       }
 
       to {
@@ -272,115 +248,96 @@
       }
     }
 
-    /* ── LOBBY ────────────────────────────────────── */
-    .lobby-logo {
+    /* lobby */
+    .logo {
       font-family: var(--f1);
-      font-size: 42px;
+      font-size: 40px;
       font-weight: 900;
       color: var(--white);
       letter-spacing: 4px;
-      text-align: center;
-      text-shadow: 0 0 40px rgba(225, 6, 0, .2);
+      text-align: center
     }
 
-    .lobby-logo .rl {
+    .logo em {
       color: var(--red);
+      font-style: normal
     }
 
-    .lobby-sub {
-      font-size: 12px;
-      color: var(--dim);
-      letter-spacing: 2px;
-      text-align: center;
-    }
-
-    .code-box {
+    .codebox {
       width: 100%;
       background: var(--bg1);
       border: 1px solid var(--line);
       border-top: 2px solid var(--red);
       padding: 24px;
-      text-align: center;
+      text-align: center
     }
 
-    .code-box .cb-lbl {
+    .codebox-lbl {
       font-size: 9px;
       letter-spacing: 4px;
       color: var(--dim);
       margin-bottom: 10px;
-      text-transform: uppercase;
+      text-transform: uppercase
     }
 
-    .code-box .cb-code {
+    .codebox-val {
       font-family: var(--f1);
       font-size: 52px;
       font-weight: 900;
       letter-spacing: 16px;
-      color: var(--red);
+      color: var(--red)
     }
 
-    .code-box .cb-hint {
+    .codebox-hint {
       font-size: 10px;
       color: var(--dim);
       margin-top: 8px;
-      letter-spacing: 1px;
+      letter-spacing: 1px
     }
 
-    .drv-count {
+    .plrcount {
       font-size: 12px;
       color: var(--dim);
-      letter-spacing: 2px;
+      letter-spacing: 2px
     }
 
-    .drv-count span {
-      color: var(--green);
+    .plrcount span {
+      color: var(--green)
     }
 
-    /* ── COUNTDOWN ────────────────────────────────── */
-    .cdn-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .cdn-label {
+    /* starting */
+    .big-label {
       font-family: var(--f1);
-      font-size: 12px;
-      letter-spacing: 6px;
+      font-size: 20px;
+      letter-spacing: 8px;
       color: var(--mid);
+      text-align: center
     }
 
-    .cdn-num {
-      font-family: var(--f1);
-      font-size: 130px;
-      font-weight: 900;
-      line-height: 1;
-      color: var(--red);
-      text-shadow: 0 0 60px rgba(225, 6, 0, .5);
-      animation: cdpop .4s ease;
+    .sub-label {
+      font-size: 11px;
+      color: var(--dim);
+      letter-spacing: 3px;
+      text-align: center
     }
 
-    @keyframes cdpop {
-      from {
-        transform: scale(1.25);
-        opacity: .5
-      }
-
-      to {
-        transform: scale(1);
-        opacity: 1
-      }
+    /* ── LIGHTS PANEL ──────────────────────────────── */
+    #pnl-lights {
+      gap: 40px
     }
 
-    /* ── LIGHTS ───────────────────────────────────── */
+    /* The gantry — just a clean dark bar, like the real thing */
     .gantry {
-      background: var(--bg1);
-      border: 1px solid #1e1e1e;
-      padding: 28px 36px;
       position: relative;
+      background: #0a0a0a;
+      border: 1px solid #1c1c1c;
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      gap: 0;
     }
 
+    /* Thin red top accent line */
     .gantry::before {
       content: '';
       position: absolute;
@@ -388,252 +345,286 @@
       left: 0;
       right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, #2a2a2a, var(--red), #2a2a2a, transparent);
-    }
-
-    .gantry-lbl {
-      font-family: var(--f1);
-      font-size: 9px;
-      letter-spacing: 4px;
-      color: var(--dim);
-      text-align: center;
-      margin-bottom: 20px;
+      background: var(--red);
+      opacity: .6;
     }
 
     .lights-row {
       display: flex;
-      gap: 18px;
+      gap: 0;
+      align-items: center;
     }
 
+    /* Dividers between lights */
+    .lights-row .f1l+.f1l {
+      border-left: 1px solid #161616;
+    }
+
+    /* each light cell */
     .f1l {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: #0a0a0a;
-      border: 2px solid #1e1e1e;
       position: relative;
-      transition: none;
+      width: 88px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    .f1l .core {
-      position: absolute;
-      inset: 14px;
+    /* the circle light */
+    .f1l-circle {
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      background: rgba(0, 0, 0, .5);
+      background: #0d0d0d;
+      border: 1px solid #1e1e1e;
+      position: relative;
+      transition: border-color .05s;
     }
 
-    .f1l.on {
-      background: var(--red);
-      border-color: var(--red2);
-      box-shadow: 0 0 24px rgba(225, 6, 0, .9), 0 0 60px rgba(225, 6, 0, .4), inset 0 0 20px rgba(255, 80, 0, .2);
+    /* off: subtle inner shadow to look recessed */
+    .f1l-circle::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, .9);
     }
 
-    .f1l.on .core {
-      background: rgba(255, 200, 100, .1);
+    /* floor glow — invisible when off */
+    .f1l-glow {
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: transparent;
+      filter: blur(14px);
+      opacity: 0;
+      transition: opacity .05s;
+      pointer-events: none;
     }
 
-    .gantry-status {
-      font-family: var(--f1);
-      font-size: 13px;
-      letter-spacing: 3px;
-      color: var(--mid);
-      text-align: center;
-      margin-top: 20px;
+    /* ON state */
+    .f1l.on .f1l-circle {
+      background: #e10600;
+      border-color: #ff2000;
+      box-shadow:
+        0 0 0 2px rgba(225, 6, 0, .15),
+        inset 0 1px 0 rgba(255, 120, 60, .5),
+        inset 0 -2px 6px rgba(0, 0, 0, .4);
     }
 
-    .gantry-status.go {
-      color: var(--green);
-      animation: goPulse .5s ease infinite alternate;
-      text-shadow: 0 0 20px rgba(57, 255, 20, .5);
+    .f1l.on .f1l-circle::after {
+      box-shadow: inset 0 1px 4px rgba(0, 0, 0, .2);
     }
 
-    @keyframes goPulse {
-      from {
-        opacity: .6
+    .f1l.on .f1l-glow {
+      background: radial-gradient(circle, rgba(225, 6, 0, .8), transparent 70%);
+      opacity: 1;
+      width: 80px;
+      height: 80px;
+      margin: -14px;
+    }
+
+    /* pop-in animation when light comes on */
+    @keyframes lightOn {
+      0% {
+        transform: scale(.7);
+        opacity: 0
       }
 
-      to {
+      70% {
+        transform: scale(1.08)
+      }
+
+      100% {
+        transform: scale(1);
         opacity: 1
       }
     }
 
-    /* ── CLICK BTN ────────────────────────────────── */
-    #clickbtn {
-      width: 100%;
-      padding: 20px;
-      cursor: not-allowed;
-      background: var(--bg2);
-      border: 2px solid var(--line);
-      font-family: var(--f1);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 4px;
-      color: var(--dim);
-      transition: all .1s;
-      position: relative;
-      overflow: hidden;
+    .f1l.on .f1l-circle {
+      animation: lightOn .12s cubic-bezier(.2, 0, .3, 1.4) forwards
     }
 
-    #clickbtn.armed {
-      background: var(--red);
-      border-color: var(--red2);
-      color: #fff;
-      cursor: pointer;
-      box-shadow: 0 0 30px rgba(225, 6, 0, .5);
-      animation: armIn .3s ease;
-    }
-
-    @keyframes armIn {
-      from {
-        transform: scale(.97)
-      }
-
-      to {
+    /* lights-out: quick fade */
+    @keyframes lightOff {
+      0% {
+        opacity: 1;
         transform: scale(1)
       }
+
+      40% {
+        opacity: .8;
+        transform: scale(1.04)
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(.9)
+      }
     }
 
-    #clickbtn.armed:hover {
-      background: var(--red2);
+    .f1l.off-flash .f1l-circle {
+      animation: lightOff .2s ease-out forwards
     }
 
-    #clickbtn.armed:active {
-      transform: scale(.98);
+    .f1l.off-flash .f1l-glow {
+      animation: lightOff .2s ease-out forwards
     }
 
-    #clickbtn.jumped {
-      background: rgba(255, 183, 0, .1);
-      border-color: var(--amber);
-      color: var(--amber);
-      cursor: default;
-    }
-
-    #clickbtn.done {
-      background: var(--bg2);
-      border-color: var(--line);
-      color: var(--dim);
-      cursor: default;
-    }
-
-    .kbd-hint {
-      font-size: 10px;
-      color: var(--dim);
-      letter-spacing: 1px;
-      text-align: center;
-    }
-
-    /* jumpstart flash */
-    #jflash {
-      display: none;
+    /* light number label */
+    .f1l-num {
       position: absolute;
-      inset: 0;
-      background: rgba(255, 183, 0, .06);
-      border: 2px solid var(--amber);
-      align-items: center;
-      justify-content: center;
+      bottom: 10px;
+      font-family: var(--mono);
+      font-size: 8px;
+      color: #222;
+      letter-spacing: 1px;
+      user-select: none;
     }
 
-    #jflash.show {
-      display: flex;
+    .f1l.on .f1l-num {
+      color: rgba(255, 100, 60, .4);
     }
 
-    .jflash-txt {
+    /* ── ACTION BUTTON ────────────────────────────── */
+    #abtn {
+      width: 100%;
+      padding: 18px 24px;
+      border: 1px solid #1a1a1a;
+      background: #080808;
       font-family: var(--f1);
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      color: var(--amber);
-      text-shadow: 0 0 30px rgba(255, 183, 0, .8);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #252525;
+      cursor: default;
+      user-select: none;
+      transition: color .2s, border-color .2s, background .2s;
     }
 
-    /* my time display */
-    #mytime-wrap {
+    /* armed — solid red, no pulse, no glow, just ready */
+    #abtn.arm {
+      background: var(--red);
+      border-color: #ff2000;
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 8px;
+    }
+
+    #abtn.arm:active {
+      opacity: .85;
+      transform: scale(.995);
+    }
+
+    #abtn.jump {
+      background: #0d0a00;
+      border-color: rgba(255, 183, 0, .3);
+      color: var(--amber);
+    }
+
+    #abtn.done {
+      background: #030d01;
+      border-color: rgba(57, 255, 20, .2);
+      color: var(--green);
+    }
+
+    .kbdhint {
+      font-size: 9px;
+      color: #1e1e1e;
+      letter-spacing: 3px;
       text-align: center;
-      display: none;
+      text-transform: uppercase;
+    }
+
+
+
+    #mytime {
+      text-align: center;
+      display: none
     }
 
     .mytime-lbl {
       font-size: 9px;
       letter-spacing: 4px;
       color: var(--dim);
-      margin-bottom: 6px;
+      margin-bottom: 6px
     }
 
     #mytime-val {
       font-family: var(--f1);
       font-size: 42px;
-      font-weight: 900;
-      color: var(--green);
+      font-weight: 900
     }
 
-    /* ── RESULTS ──────────────────────────────────── */
+    /* results */
     .res-title {
       font-family: var(--f1);
       font-size: 26px;
       font-weight: 900;
       letter-spacing: 4px;
       color: var(--white);
-      text-align: center;
+      text-align: center
     }
 
-    .res-table {
+    .restbl {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: collapse
     }
 
-    .res-table th {
+    .restbl th {
       font-size: 9px;
       letter-spacing: 3px;
       color: var(--dim);
       text-align: left;
       padding: 8px 12px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
     }
 
-    .res-table td {
+    .restbl td {
       padding: 11px 12px;
       font-size: 13px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
     }
 
-    .res-table tr.p1 td {
-      background: rgba(225, 6, 0, .06);
+    .restbl tr.p1 td {
+      background: rgba(225, 6, 0, .05)
     }
 
-    .res-table tr:hover td {
-      background: var(--bg2);
+    .restbl tr:hover td {
+      background: var(--bg2)
     }
 
     .pos {
       font-family: var(--f1);
       font-weight: 900;
       font-size: 16px;
-      color: var(--dim);
+      color: var(--dim)
     }
 
     .pos.r1 {
-      color: var(--red);
+      color: var(--red)
     }
 
     .pos.r2 {
-      color: #a8a8a8;
+      color: #a8a8a8
     }
 
     .pos.r3 {
-      color: #a06820;
+      color: #a06820
     }
 
     .dname {
       color: var(--white);
-      font-size: 14px;
-      letter-spacing: .5px;
+      font-size: 14px
     }
 
-    .me-tag {
+    .metag {
       font-size: 9px;
       letter-spacing: 2px;
       color: var(--red);
-      margin-left: 8px;
+      margin-left: 8px
     }
 
     .rtime {
@@ -641,81 +632,148 @@
       font-size: 20px;
       font-weight: 700;
       color: var(--green);
-      text-align: right;
+      text-align: right
     }
 
     .rtime.jump {
       color: var(--amber);
-      font-size: 13px;
+      font-size: 13px
     }
 
     .rtime.dns {
       color: var(--dim);
-      font-size: 13px;
+      font-size: 13px
     }
 
     .delta {
       font-size: 11px;
       color: var(--dim);
-      text-align: right;
+      text-align: right
     }
 
     .delta.plus {
-      color: #ff6b6b;
+      color: #ff6b6b
     }
 
-    /* ── RIGHT PANEL ──────────────────────────────── */
+    /* right */
     #pright {
       background: var(--bg1);
       border-left: 1px solid var(--line);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: hidden
     }
 
-    .tblock {
+    .tblk {
       padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
     }
 
-    .tblock-lbl {
+    .tblk-lbl {
       font-size: 9px;
       letter-spacing: 3px;
       color: var(--dim);
       margin-bottom: 6px;
-      text-transform: uppercase;
+      text-transform: uppercase
     }
 
-    .tblock-val {
+    .tblk-val {
       font-family: var(--f1);
       font-size: 22px;
       font-weight: 700;
-      color: var(--green);
+      color: var(--green)
     }
 
-    .tblock-val.red {
-      color: var(--red);
+    .tblk-val.red {
+      color: var(--red)
     }
 
-    .tblock-val.dim {
+    .tblk-val.dim {
       color: var(--mid);
       font-size: 14px;
-      font-family: var(--mono);
+      font-family: var(--mono)
     }
 
-    .tblock-sub {
+    .tblk-sub {
       font-size: 9px;
       color: var(--dim);
-      letter-spacing: 1px;
-      margin-top: 3px;
+      margin-top: 3px
     }
 
-    /* ── STATUS BAR ───────────────────────────────── */
+    #slb {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
 
+    .slb-hdr {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--dim);
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+      text-transform: uppercase;
+      flex-shrink: 0
+    }
 
+    .slb-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-bottom: 1px solid rgba(26, 26, 26, .5)
+    }
 
+    .slb-pos {
+      font-family: var(--f1);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dim);
+      min-width: 20px
+    }
 
-    /* btn styles */
+    .slb-pos.p1 {
+      color: var(--red)
+    }
+
+    .slb-pos.p2 {
+      color: #a8a8a8
+    }
+
+    .slb-pos.p3 {
+      color: #a06820
+    }
+
+    .slb-name {
+      flex: 1;
+      font-size: 11px;
+      color: var(--fg);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .slb-name.me {
+      color: var(--white)
+    }
+
+    .slb-time {
+      font-family: var(--f1);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green)
+    }
+
+    .slb-empty {
+      font-size: 10px;
+      color: var(--dim);
+      padding: 14px 12px;
+      letter-spacing: 1px
+    }
+
+    /* btns */
     .btn {
       font-family: var(--f1);
       font-size: 11px;
@@ -724,39 +782,32 @@
       padding: 11px 24px;
       cursor: pointer;
       border: none;
-      transition: all .12s;
+      transition: all .12s
     }
 
     .btn-red {
       background: var(--red);
-      color: #fff;
+      color: #fff
     }
 
     .btn-red:hover {
       background: var(--red2);
       box-shadow: 0 0 20px rgba(225, 6, 0, .4);
-      transform: translateY(-1px);
+      transform: translateY(-1px)
     }
 
     .btn-ghost {
       background: transparent;
       color: var(--fg);
-      border: 1px solid var(--line);
+      border: 1px solid var(--line)
     }
 
     .btn-ghost:hover {
       border-color: var(--fg);
-      color: var(--white);
+      color: var(--white)
     }
 
-    .btn:disabled {
-      opacity: .35;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-
-    /* ── TOAST ──────────────────────────────────────────────────────────────────── */
+    /* toast */
     .toast {
       background: var(--bg1);
       border: 1px solid var(--line);
@@ -764,53 +815,45 @@
       padding: 12px 16px;
       pointer-events: all;
       animation: tin .2s ease;
+      margin-bottom: 6px
     }
 
     .toast.err {
-      border-left-color: #ff3333;
-    }
-
-    .toast.warn {
-      border-left-color: #ffb700;
+      border-left-color: #ff3333
     }
 
     .toast-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 5px;
+      margin-bottom: 5px
     }
 
     .toast-tag {
       font-size: 9px;
       letter-spacing: 3px;
       font-weight: 700;
-      text-transform: uppercase;
+      text-transform: uppercase
     }
 
     .toast.err .toast-tag {
-      color: #ff3333;
-    }
-
-    .toast.warn .toast-tag {
-      color: #ffb700;
+      color: #ff3333
     }
 
     .toast-x {
       font-size: 14px;
       color: var(--mid);
-      cursor: pointer;
-      line-height: 1;
+      cursor: pointer
     }
 
     .toast-x:hover {
-      color: var(--fg);
+      color: var(--fg)
     }
 
     .toast-msg {
       font-size: 12px;
       color: var(--fg);
-      line-height: 1.6;
+      line-height: 1.6
     }
 
     @keyframes tin {
@@ -825,200 +868,98 @@
       }
     }
 
-    @keyframes tout {
-      from {
-        opacity: 1;
-        transform: none
-      }
-
-      to {
-        opacity: 0;
-        transform: translateX(10px)
-      }
-    }
-
-    /* ── SESSION LEADERBOARD ───────────────────── */
-    #session-lb {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .lb-hdr {
-      font-size: 9px;
-      letter-spacing: 3px;
-      color: var(--dim);
-      padding: 14px 16px 10px;
-      border-bottom: 1px solid var(--line);
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-
-    .lb-entry {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-bottom: 1px solid rgba(26, 26, 26, .5);
-      transition: background .1s;
-    }
-
-    .lb-entry:hover {
-      background: var(--bg2);
-    }
-
-    .lb-pos {
-      font-family: var(--f1);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--dim);
-      min-width: 20px;
-    }
-
-    .lb-pos.p1 {
-      color: var(--red);
-    }
-
-    .lb-pos.p2 {
-      color: #a8a8a8;
-    }
-
-    .lb-pos.p3 {
-      color: #a06820;
-    }
-
-    .lb-name {
-      flex: 1;
-      font-size: 11px;
-      color: var(--fg);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .lb-name.me {
-      color: var(--white);
-    }
-
-    .lb-time {
-      font-family: var(--f1);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--green);
-    }
-
-    .lb-empty {
-      font-size: 10px;
-      color: var(--dim);
-      padding: 14px 12px;
-      letter-spacing: 1px;
-    }
-
-    /* scrollbar */
     ::-webkit-scrollbar {
-      width: 3px;
+      width: 3px
     }
 
     ::-webkit-scrollbar-thumb {
-      background: var(--line);
+      background: var(--line)
     }
   </style>
 </head>
 
 <body>
-
   <div id="layout">
 
-    <!-- HEADER -->
     <div id="hdr">
-      <div class="hdr-back" id="back-btn">← LAN0</div>
-      <!-- <div class="hdr-brand"><em>F1</em> REACTION</div> -->
-      <div class="hdr-game">REACTION TIME</div>
-      <div class="hdr-right">
-        <span>ROOM <span class="room-pill" id="hdr-room">—</span></span>
-        <span>USR: <strong id="hdr-driver">—</strong></span>
+      <div id="back-btn">← LAN0</div>
+      <div class="hdr-title">REACTION TIME</div>
+      <div class="hdr-r">
+        <span>ROOM <span id="hdr-room">—</span></span>
+        <span>USR: <strong id="hdr-user">—</strong></span>
       </div>
     </div>
 
-    <!-- LEFT -->
     <div id="pleft">
-      <div class="panel-hdr">Players</div>
-      <div id="driver-list"></div>
-      <div id="log-box"></div>
+      <div class="phdr">Players</div>
+      <div id="drvlist"></div>
+      <div id="logbox"></div>
     </div>
 
-    <!-- CENTER -->
     <div id="center">
 
-      <!-- jumpstart overlay -->
-      <!-- <div id="jflash"><div class="jflash-txt">⚠ JUMP START ⚠</div></div> -->
-
-      <!-- LOBBY -->
-      <div class="panel on" id="p-lobby">
-        <div class="lobby-logo"><span class="rl">REACTION</span> TIME</div>
-        <div class="lobby-sub">WAITING FOR HOST TO START</div>
-        <div class="code-box">
-          <div class="cb-lbl">ROOM CODE — SHARE WITH PLAYERS ON THIS NETWORK</div>
-          <div class="cb-code" id="code-big">—</div>
-          <div class="cb-hint">others go to the same IP and enter this code to join</div>
+      <div class="pnl on" id="pnl-lobby">
+        <div class="logo"><em>REACTION</em> TIME</div>
+        <div class="codebox">
+          <div class="codebox-lbl">ROOM CODE — SHARE WITH PLAYERS ON THIS NETWORK</div>
+          <div class="codebox-val" id="room-code">—</div>
+          <div class="codebox-hint">others enter this code to join</div>
         </div>
-        <div class="drv-count">PLAYERS READY: <span id="drv-count">0</span></div>
-        <div id="host-btn-wrap" style="display:none;flex-direction:column;align-items:center;gap:10px;">
-          <button class="btn btn-red" id="start-btn" style="font-size:14px;padding:14px 48px;">▶ START</button>
-          <div style="font-size:10px;color:var(--dim);letter-spacing:1px;">You are the Host</div>
+        <div class="plrcount">PLAYERS READY: <span id="drv-count">0</span></div>
+        <div id="host-start" style="display:none;flex-direction:column;align-items:center;gap:10px">
+          <button class="btn btn-red" id="start-btn" style="font-size:14px;padding:14px 48px">▶ START</button>
+          <div style="font-size:10px;color:var(--dim);letter-spacing:1px">You are the Host</div>
         </div>
-        <div id="guest-wait" style="display:none;font-size:12px;color:var(--dim);letter-spacing:2px;">
-          ▷ WAITING FOR HOST...
-        </div>
+        <div id="guest-lobby" style="display:none;font-size:12px;color:var(--dim);letter-spacing:2px">▷ WAITING FOR
+          HOST...</div>
       </div>
 
-      <!-- COUNTDOWN -->
-      <div class="panel" id="p-countdown">
-        <div class="cdn-wrap">
-          <div class="cdn-label">ROUND STARTS IN</div>
-          <div class="cdn-num" id="cdn-num">3</div>
-          <!-- <div class="cdn-label" style="font-size:10px;letter-spacing:8px;">......</div> -->
-        </div>
+      <div class="pnl" id="pnl-starting">
+        <div class="big-label">STARTING</div>
+        <div class="sub-label">PREPARE YOURSELF</div>
       </div>
 
-      <!-- LIGHTS -->
-      <div class="panel" id="p-lights">
+      <div class="pnl" id="pnl-lights">
         <div class="gantry">
-          <!-- <div class="gantry-lbl">.............</div> -->
-          <div class="lights-row" id="lights-row">
+          <div class="lights-row">
             <div class="f1l" id="l0">
-              <div class="core"></div>
+              <div class="f1l-glow"></div>
+              <div class="f1l-circle"></div>
+              <div class="f1l-num">01</div>
             </div>
             <div class="f1l" id="l1">
-              <div class="core"></div>
+              <div class="f1l-glow"></div>
+              <div class="f1l-circle"></div>
+              <div class="f1l-num">02</div>
             </div>
             <div class="f1l" id="l2">
-              <div class="core"></div>
+              <div class="f1l-glow"></div>
+              <div class="f1l-circle"></div>
+              <div class="f1l-num">03</div>
             </div>
             <div class="f1l" id="l3">
-              <div class="core"></div>
+              <div class="f1l-glow"></div>
+              <div class="f1l-circle"></div>
+              <div class="f1l-num">04</div>
             </div>
             <div class="f1l" id="l4">
-              <div class="core"></div>
+              <div class="f1l-glow"></div>
+              <div class="f1l-circle"></div>
+              <div class="f1l-num">05</div>
             </div>
           </div>
-          <!-- <div class="gantry-status" id="gantry-status">WAIT FOR LIGHTS OUT...</div> -->
         </div>
-
-        <button id="clickbtn" disabled>WAITING FOR LIGHTS OUT...</button>
-        <div class="kbd-hint">SPACEBAR also works</div>
-
-        <div id="mytime-wrap">
-          <div class="mytime-lbl">YOUR REACTION TIME</div>
+        <button id="abtn">WAITING...</button>
+        <div class="kbdhint">SPACE / ENTER</div>
+        <div id="mytime">
+          <div class="mytime-lbl">YOUR TIME</div>
           <div id="mytime-val">—</div>
         </div>
       </div>
 
-      <!-- RESULTS -->
-      <div class="panel" id="p-results" style="gap:16px;">
+      <div class="pnl" id="pnl-results" style="gap:16px">
         <div class="res-title">RESULTS</div>
-        <table class="res-table">
+        <table class="restbl">
           <thead>
             <tr>
               <th>POS</th>
@@ -1029,377 +970,288 @@
           </thead>
           <tbody id="res-body"></tbody>
         </table>
-        <div id="host-res-btns" style="display:none;gap:12px;flex-direction:row;">
-          <button class="btn btn-red" id="play-again-btn">▶ PLAY AGAIN</button>
+        <div id="host-results" style="display:none;gap:12px;flex-direction:row">
+          <button class="btn btn-red" id="again-btn">▶ PLAY AGAIN</button>
           <button class="btn btn-ghost" id="hub-btn">← BACK TO LAN0</button>
         </div>
-        <div id="guest-res-wait" style="display:none;font-size:12px;color:var(--mid);letter-spacing:2px;">
+        <div id="guest-results" style="display:none;font-size:12px;color:var(--mid);letter-spacing:2px">
           WAITING FOR HOST TO RESTART...
         </div>
       </div>
 
-    </div><!-- /center -->
+    </div>
 
-    <!-- RIGHT -->
     <div id="pright">
-      <div class="tblock">
-        <div class="tblock-lbl">MY BEST</div>
-        <div class="tblock-val" id="t-best">—</div>
-        <div class="tblock-sub">milliseconds</div>
+      <div class="tblk">
+        <div class="tblk-lbl">MY BEST</div>
+        <div class="tblk-val" id="t-best">—</div>
+        <div class="tblk-sub">milliseconds</div>
       </div>
-      <div class="tblock">
-        <div class="tblock-lbl">CLICKED</div>
-        <div class="tblock-val red" id="t-clicked">0</div>
-        <div class="tblock-sub">of <span id="t-total">0</span> players</div>
+      <div class="tblk">
+        <div class="tblk-lbl">CLICKED</div>
+        <div class="tblk-val red" id="t-clicked">0</div>
+        <div class="tblk-sub">of <span id="t-total">0</span> players</div>
       </div>
-      <div class="tblock">
-        <div class="tblock-lbl">ROUND</div>
-        <div class="tblock-val dim" id="t-round">RD 1</div>
+      <div class="tblk">
+        <div class="tblk-lbl">ROUND</div>
+        <div class="tblk-val dim" id="t-round">RD 1</div>
       </div>
-      <div class="tblock">
-        <div class="tblock-lbl">STATE</div>
-        <div class="tblock-val dim" id="t-state">LOBBY</div>
-      </div>
-      <div id="session-lb">
-        <div class="lb-hdr">SESSION LB</div>
-        <div id="lb-body">
-          <div class="lb-empty">No rounds played yet.</div>
+      <div id="slb">
+        <div class="slb-hdr">SESSION LB</div>
+        <div id="slb-body">
+          <div class="slb-empty">No rounds played yet.</div>
         </div>
       </div>
     </div>
 
-
-  </div><!-- /layout -->
-
-  <!-- TOAST -->
-  <div id="toast-wrap"
-    style="position:fixed;top:14px;right:14px;display:flex;flex-direction:column;gap:8px;z-index:10000;pointer-events:none;min-width:300px;">
   </div>
+
+  <div id="toasts" style="position:fixed;top:14px;right:14px;z-index:10000;pointer-events:none;min-width:300px"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
+    'use strict';
+
     const socket = io();
+    const g = id => document.getElementById(id);
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ROOM = new URLSearchParams(location.search).get('room');
+    const IS_HOST = new URLSearchParams(location.search).get('host') === '1';
 
-    const params = new URLSearchParams(window.location.search);
-    const ROOM = params.get('room');
-    const IS_HOST = params.get('host') === '1';
-
-    // Read username from localStorage session (same 40min system as hub)
-    function getSessionUser() {
+    function loadUser() {
       try {
-        const s = JSON.parse(localStorage.getItem('lan0_session'));
+        const s = JSON.parse(localStorage.getItem('lan0_session') || 'null');
         if (!s || Date.now() - s.ts > 40 * 60 * 1000) { localStorage.removeItem('lan0_session'); return ''; }
         return (s.user || '').toLowerCase();
       } catch { return ''; }
     }
-    let myUser = getSessionUser();
+    const ME = loadUser();
+    if (!ME) location.href = '/';
+
+    // ─── the only two pieces of client-side state ─────────────────────────────────
     let isHost = IS_HOST;
     let myBest = null;
-    let roundNum = 1;
-    let gameState = 'lobby';
-    let clicked = false;
-    let canClick = false;   // only true after lights_out, prevents early clicks
+    let round = 1;
 
-    if (!myUser) { window.location.href = '/'; }
-
-    // ── DOM ──────────────────────────────────────
-    const $ = id => document.getElementById(id);
-
-    // ── Init ──────────────────────────────────────
-    $('hdr-room').textContent = ROOM;
-    $('hdr-driver').textContent = myUser;
-    $('code-big').textContent = ROOM;
-    setHostUI();
-
-
-    // ── Helpers ───────────────────────────────────
-    function showPanel(name) {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-      $('p-' + name).classList.add('on');
-      gameState = name;
+    // ─── panel ────────────────────────────────────────────────────────────────────
+    function show(name) {
+      document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
+      g('pnl-' + name).classList.add('on');
     }
 
+    // ─── action button ────────────────────────────────────────────────────────────
+    // Classes: '' (idle) | 'arm' (clickable) | 'jump' | 'done'
+    // Only 'arm' allows emitting player_click. Set back to '' immediately on click.
+
+    function btnIdle(txt) { const b = g('abtn'); b.className = ''; b.textContent = txt || 'WAITING...'; }
+    function btnArm(txt) { const b = g('abtn'); b.className = 'arm'; b.textContent = txt; }
+    function btnJump() { const b = g('abtn'); b.className = 'jump'; b.textContent = '⚠ JUMP START'; }
+    function btnDone(ms) { const b = g('abtn'); b.className = 'done'; b.textContent = '✓ ' + ms + 'ms'; }
+
+    // ─── THE click sender — client sends, server decides validity ─────────────────
+    function sendClick() {
+      if (g('abtn').className !== 'arm') return; // not armed — do nothing
+      g('abtn').className = '';                  // disarm NOW before anything async
+      socket.emit('player_click');
+    }
+
+    g('abtn').addEventListener('click', sendClick);
+    document.addEventListener('keydown', e => {
+      if (e.code !== 'Space' && e.code !== 'Enter') return;
+      e.preventDefault();  // always block scroll
+      if (e.repeat) return; // ignore held-key repeat — only physical presses
+      sendClick();
+    });
+
+    // ─── host UI ──────────────────────────────────────────────────────────────────
+    function syncHost() {
+      g('host-start').style.display = isHost ? 'flex' : 'none';
+      g('guest-lobby').style.display = isHost ? 'none' : 'block';
+      g('host-results').style.display = isHost ? 'flex' : 'none';
+      g('guest-results').style.display = isHost ? 'none' : 'block';
+    }
+
+    // ─── log & toast ──────────────────────────────────────────────────────────────
     function log(msg) {
       const d = document.createElement('div');
-      d.className = 'log-ln';
-      d.textContent = msg;
-      $('log-box').prepend(d);
-      if ($('log-box').children.length > 10) $('log-box').lastChild.remove();
+      d.className = 'logln'; d.textContent = msg;
+      g('logbox').prepend(d);
+      while (g('logbox').children.length > 14) g('logbox').lastChild.remove();
     }
-
-
-    function setHostUI() {
-      if (isHost) {
-        $('host-btn-wrap').style.display = 'flex';
-        $('guest-wait').style.display = 'none';
-      } else {
-        $('host-btn-wrap').style.display = 'none';
-        $('guest-wait').style.display = 'block';
-      }
-    }
-
-
-    // ── Socket connect: claim username first, then join room ──────────────
-    socket.on('connect', () => {
-      if (ROOM && myUser) {
-        // Claim username on server (reaction.html opens a new socket)
-        socket.emit('claim_username', { username: myUser });
-      }
-    });
-
-    socket.on('username_claim_result', ({ ok, reason }) => {
-      if (!ok) {
-        showToast('err', 'USERNAME TAKEN', reason);
-        setTimeout(() => window.location.href = '/', 3000);
-        return;
-      }
-      socket.emit('join_room', { username: myUser, roomId: ROOM });
-    });
-
-    // ── Room state ─────────────────────────────────
-    socket.on('room_state', room => {
-      renderDrivers(room.players, room.hostId);
-      $('drv-count').textContent = room.players.length;
-      $('t-total').textContent = room.players.length;
-      $('t-state').textContent = room.state.toUpperCase();
-
-      if (room.hostId === socket.id) {
-        isHost = true;
-        setHostUI();
-      }
-    });
-
-    socket.on('you_are_host', () => {
-      isHost = true; setHostUI();
-      log('You are now Race Host.');
-    });
-
-    socket.on('sys', msg => log(msg));
-
-    socket.on('join_error', msg => {
-      showToast('err', 'ROOM ERROR', msg);
-      setTimeout(() => window.location.href = '/', 3500);
-    });
-
-    function showToast(type, title, msg, ms = 4000) {
-      const wrap = document.getElementById('toast-wrap');
+    function toast(type, title, msg, ms = 4000) {
       const el = document.createElement('div');
       el.className = 'toast ' + type;
-      el.innerHTML = `
-    <div class="toast-top">
-      <span class="toast-tag">${title}</span>
-      <span class="toast-x" onclick="this.closest('.toast').remove()">✕</span>
-    </div>
-    <div class="toast-msg">${msg}</div>`;
-      wrap.appendChild(el);
-      setTimeout(() => {
-        el.style.animation = 'tout .2s ease forwards';
-        setTimeout(() => el.remove(), 200);
-      }, ms);
+      el.innerHTML = `<div class="toast-top"><span class="toast-tag">${title}</span><span class="toast-x" onclick="this.closest('.toast').remove()">✕</span></div><div class="toast-msg">${msg}</div>`;
+      g('toasts').appendChild(el);
+      setTimeout(() => el.remove(), ms);
     }
 
-    // ── GAME EVENTS ────────────────────────────────
+    // ─── init ─────────────────────────────────────────────────────────────────────
+    g('hdr-room').textContent = ROOM;
+    g('hdr-user').textContent = ME;
+    g('room-code').textContent = ROOM;
+    btnIdle();
+    syncHost();
 
+    // ─────────────────────────────────────────────────────────────────────────────
+    // SOCKET HANDLERS — purely display layer, server is the authority
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    socket.on('connect', () => socket.emit('claim_username', { username: ME }));
+
+    socket.on('username_claim_result', ({ ok, reason }) => {
+      if (!ok) { toast('err', 'USERNAME TAKEN', reason); setTimeout(() => location.href = '/', 3000); return; }
+      socket.emit('join_room', { username: ME, roomId: ROOM });
+    });
+
+    socket.on('join_error', msg => {
+      toast('err', 'ROOM ERROR', msg);
+      setTimeout(() => location.href = '/', 3500);
+    });
+
+    socket.on('room_state', room => {
+      g('drv-count').textContent = room.players.length;
+      g('t-total').textContent = room.players.length;
+      if (room.hostId === socket.id && !isHost) { isHost = true; syncHost(); }
+      renderDrivers(room.players, room.hostId);
+    });
+
+    socket.on('you_are_host', () => { isHost = true; syncHost(); log('You are now host.'); });
+    socket.on('sys', log);
+
+    // ── game_starting: server entered 'starting' state, lights begin in 3.6s ─────
     socket.on('game_starting', () => {
-      showPanel('countdown');
-      $('t-state').textContent = 'STARTING';
-      clicked = false;
-      canClick = false;
-
-      // Reset lights & button
-      for (let i = 0; i < 5; i++) $('l' + i).classList.remove('on');
-      $('clickbtn').className = '';
-      $('clickbtn').disabled = true;
-      $('clickbtn').textContent = 'WAITING FOR LIGHTS OUT...';
-      $('mytime-wrap').style.display = 'none';
-      $('t-clicked').textContent = '0';
-
-      let n = 3;
-      $('cdn-num').textContent = n;
-      $('cdn-num').style.color = 'var(--red)';
-      const iv = setInterval(() => {
-        n--;
-        const el = $('cdn-num');
-        if (n === 0) {
-          el.textContent = 'GO';
-          el.style.color = 'var(--green)';
-        } else if (n < 0) {
-          clearInterval(iv);
-        } else {
-          el.textContent = n;
-          el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
-        }
-      }, 1000);
+      for (let i = 0; i < 5; i++) { g('l' + i).classList.remove('on', 'off-flash'); }
+      g('mytime').style.display = 'none';
+      g('t-clicked').textContent = '0';
+      btnIdle();
+      show('starting');
+      // No timers here. We wait for lights_begin from server.
     });
 
+    // ── lights_begin: server entered 'lights' state, jump start now valid ─────────
     socket.on('lights_begin', () => {
-      showPanel('lights');
+      show('lights');
+      btnArm('HOLD — WAIT FOR LIGHTS OUT');
     });
 
-    socket.on('light_on', ({ i }) => {
-      $('l' + i).classList.add('on');
+    // ── light_on: one light at a time from server ─────────────────────────────────
+    socket.on('light_on', ({ i }) => g('l' + i).classList.add('on'));
 
-    });
-
+    // ── lights_out: server entered 'ready', valid reaction window open ────────────
     socket.on('lights_out', () => {
-      for (let i = 0; i < 5; i++) $('l' + i).classList.remove('on');
-      $('t-state').textContent = 'RACING';
-      canClick = true;
-
-      if (!clicked) {
-        $('clickbtn').className = 'armed';
-        $('clickbtn').disabled = false;
-        $('clickbtn').textContent = 'CLICK — LIGHTS OUT';
+      // Flash each light off
+      for (let i = 0; i < 5; i++) {
+        const el = g('l' + i);
+        el.classList.add('off-flash');
+        setTimeout(() => { el.classList.remove('on'); el.classList.remove('off-flash'); }, 260);
       }
+      // Only update if still armed (player hasn't jumped already)
+      if (g('abtn').className === 'arm') btnArm('GO!');
     });
 
+    // ── you_jumped: server confirmed click was before lights_out ──────────────────
     socket.on('you_jumped', () => {
-      clicked = true;
-      $('clickbtn').className = 'jumped';
-      $('clickbtn').disabled = true;
-      $('clickbtn').textContent = '⚠ JUMP START — PENALTY';
-      $('mytime-wrap').style.display = 'block';
-      $('mytime-val').textContent = 'JUMP START';
-      $('mytime-val').style.color = 'var(--amber)';
-      log('JUMP START — penalty applied.');
-      const f = $('jflash');
-      f.classList.add('show');
-      setTimeout(() => f.classList.remove('show'), 1200);
+      btnJump();
+      g('mytime').style.display = 'block';
+      g('mytime-val').style.color = 'var(--amber)';
+      g('mytime-val').textContent = 'JUMP START';
+      log('Jump start — penalty applied.');
     });
 
+    // ── your_time: server confirmed valid reaction, here's the time ───────────────
     socket.on('your_time', ({ time }) => {
-      clicked = true;
-      $('clickbtn').className = 'done';
-      $('clickbtn').disabled = true;
-      $('clickbtn').textContent = '✓ ' + time + 'ms REGISTERED';
-      $('mytime-wrap').style.display = 'block';
-      $('mytime-val').textContent = time + 'ms';
-      $('mytime-val').style.color = 'var(--green)';
-
+      btnDone(time);
+      g('mytime').style.display = 'block';
+      g('mytime-val').style.color = 'var(--green)';
+      g('mytime-val').textContent = time + 'ms';
       log('Your time: ' + time + 'ms');
-      if (myBest === null || time < myBest) {
-        myBest = time;
-        $('t-best').textContent = time;
-      }
+      if (myBest === null || time < myBest) { myBest = time; g('t-best').textContent = time; }
     });
 
+    // ── results: round over ───────────────────────────────────────────────────────
     socket.on('results', ({ results }) => {
-      canClick = false;
-      showPanel('results');
-      $('t-state').textContent = 'FINISHED';
+      btnIdle();
+      show('results');
       renderResults(results);
-      if (isHost) {
-        $('host-res-btns').style.display = 'flex';
-        $('guest-res-wait').style.display = 'none';
-      } else {
-        $('host-res-btns').style.display = 'none';
-        $('guest-res-wait').style.display = 'block';
-      }
+      g('host-results').style.display = isHost ? 'flex' : 'none';
+      g('guest-results').style.display = isHost ? 'none' : 'block';
     });
 
+    // ── back_to_lobby: host started new round ─────────────────────────────────────
     socket.on('back_to_lobby', () => {
-      showPanel('lobby');
-      roundNum++;
-      $('t-round').textContent = 'RD ' + roundNum;
-      $('t-state').textContent = 'LOBBY';
-      clicked = false;
-      canClick = false;
-      log('New session.');
+      round++;
+      g('t-round').textContent = 'RD ' + round;
+      btnIdle();
+      show('lobby');
+      log('Round ' + round + ' — lobby');
     });
 
-    // ── Session Leaderboard ────────────────────────
+    // ── session leaderboard ───────────────────────────────────────────────────────
     socket.on('session_leaderboard', entries => {
-      renderLeaderboard(entries);
-    });
-
-    function renderLeaderboard(entries) {
-      const body = $('lb-body');
-      if (!entries || entries.length === 0) {
-        body.innerHTML = '<div class="lb-empty">No rounds played yet.</div>';
-        return;
-      }
+      const body = g('slb-body');
+      if (!entries?.length) { body.innerHTML = '<div class="slb-empty">No rounds played yet.</div>'; return; }
       body.innerHTML = '';
       entries.forEach((e, i) => {
-        const pos = i + 1;
-        const posClass = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : '';
-        const isMe = e.username === myUser;
-        const div = document.createElement('div');
-        div.className = 'lb-entry';
-        div.innerHTML = `<div class="lb-pos ${posClass}">P${pos}</div>
-          <div class="lb-name${isMe ? ' me' : ''}">${esc(e.username)}${isMe ? ' ◂' : ''}</div>
-          <div class="lb-time">${e.bestTime}ms</div>`;
-        body.appendChild(div);
+        const n = i + 1, pc = n === 1 ? 'p1' : n === 2 ? 'p2' : n === 3 ? 'p3' : '', me = e.username === ME;
+        const d = document.createElement('div');
+        d.className = 'slb-row';
+        d.innerHTML = `<div class="slb-pos ${pc}">P${n}</div><div class="slb-name${me ? ' me' : ''}">${esc(e.username)}${me ? ' ◂' : ''}</div><div class="slb-time">${e.bestTime}ms</div>`;
+        body.appendChild(d);
       });
-    }
+    });
 
-    // ── Render ─────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────────
+    // RENDER
+    // ─────────────────────────────────────────────────────────────────────────────
     function renderDrivers(players, hostId) {
-      $('driver-list').innerHTML = '';
+      g('drvlist').innerHTML = '';
       players.forEach(p => {
         const d = document.createElement('div');
-        d.className = 'drv-row' + (p.id === socket.id ? ' me' : '');
-        d.innerHTML = `<div class="drv-dot"></div>
-      <div class="drv-name">${esc(p.username)}</div>
-      <div class="drv-tag">${p.id === hostId ? 'DIR' : 'DRV'}</div>`;
-        $('driver-list').appendChild(d);
+        d.className = 'drv' + (p.id === socket.id ? ' me' : '');
+        d.innerHTML = `<div class="drv-dot"></div><div class="drv-name">${esc(p.username)}</div><div class="drv-badge">${p.id === hostId ? 'DIR' : 'DRV'}</div>`;
+        g('drvlist').appendChild(d);
       });
     }
 
     function renderResults(results) {
-      const tbody = $('res-body');
+      const tbody = g('res-body');
       tbody.innerHTML = '';
       let winT = null;
       results.forEach(r => { if (!r.jump && !r.dns && r.time !== null && winT === null) winT = r.time; });
-
-      results.forEach((r, i) => {
-        const pos = i + 1;
-        const pc = pos === 1 ? 'r1' : pos === 2 ? 'r2' : pos === 3 ? 'r3' : '';
-        const me = r.id === socket.id;
-        let tDisp, tCls, dDisp, dCls = '';
-        if (r.jump) { tDisp = 'JUMP START'; tCls = 'jump'; dDisp = '+500ms PEN'; dCls = 'plus'; }
-        else if (r.dns) { tDisp = 'DNS'; tCls = 'dns'; dDisp = '—'; }
-        else {
+      let pos = 0;
+      results.forEach(r => {
+        const fin = !r.jump && !r.dns && r.time !== null, me = r.id === socket.id;
+        let posH, tCls, tDisp, dCls = '', dDisp;
+        if (fin) {
+          pos++;
+          const pc = pos === 1 ? 'r1' : pos === 2 ? 'r2' : pos === 3 ? 'r3' : '';
+          posH = `<div class="pos ${pc}">P${pos}</div>`;
           tDisp = r.time + 'ms'; tCls = '';
-          dDisp = (winT !== null && r.time !== winT) ? '+' + (r.time - winT) + 'ms' : 'WINNER';
+          dDisp = winT !== null && r.time !== winT ? '+' + (r.time - winT) + 'ms' : 'WINNER';
           dCls = dDisp.startsWith('+') ? 'plus' : '';
+        } else if (r.jump) {
+          posH = '<div class="pos" style="color:var(--dim)">—</div>';
+          tDisp = 'JUMP START'; tCls = 'jump'; dDisp = 'PENALTY'; dCls = 'plus';
+        } else {
+          posH = '<div class="pos" style="color:var(--dim)">—</div>';
+          tDisp = 'NO REACTION'; tCls = 'dns'; dDisp = 'DNS';
         }
         const tr = document.createElement('tr');
-        if (pos === 1 && !r.jump && !r.dns) tr.className = 'p1';
-        tr.innerHTML = `
-      <td><div class="pos ${pc}">P${pos}</div></td>
-      <td><div class="dname">${esc(r.username)}${me ? '<span class="me-tag">YOU</span>' : ''}</div></td>
-      <td><div class="rtime ${tCls}">${tDisp}</div></td>
-      <td><div class="delta ${dCls}">${dDisp}</div></td>`;
+        if (pos === 1 && fin) tr.className = 'p1';
+        tr.innerHTML = `<td>${posH}</td><td><div class="dname">${esc(r.username)}${me ? '<span class="metag">YOU</span>' : ''}</div></td><td><div class="rtime ${tCls}">${tDisp}</div></td><td><div class="delta ${dCls}">${dDisp}</div></td>`;
         tbody.appendChild(tr);
       });
-      $('t-clicked').textContent = results.length;
+      g('t-clicked').textContent = results.length;
     }
 
-    function esc(s) { return s.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-
-    // ── Button handlers ────────────────────────────
-    $('start-btn').addEventListener('click', () => socket.emit('start_game'));
-
-    function doClick() {
-      if (!clicked && canClick) {
-        socket.emit('player_click');
-        clicked = true;
-      }
-    }
-    $('clickbtn').addEventListener('click', doClick);
-    document.addEventListener('keydown', e => {
-      if (e.code === 'Space' || e.code === 'Enter') {
-        // Always prevent space scrolling during active game panels
-        if (gameState === 'lights' || gameState === 'countdown' || gameState === 'starting') {
-          e.preventDefault();
-        }
-        if (canClick) doClick();
-      }
-    });
-
-    $('play-again-btn').addEventListener('click', () => socket.emit('play_again'));
-    $('hub-btn').addEventListener('click', () => window.location.href = '/');
-    $('back-btn').addEventListener('click', () => window.location.href = '/');
+    // ─────────────────────────────────────────────────────────────────────────────
+    // CONTROLS
+    // ─────────────────────────────────────────────────────────────────────────────
+    g('start-btn').addEventListener('click', () => socket.emit('start_game'));
+    g('again-btn').addEventListener('click', () => socket.emit('play_again'));
+    g('hub-btn').addEventListener('click', () => location.href = '/');
+    g('back-btn').addEventListener('click', () => location.href = '/');
   </script>
 </body>
 

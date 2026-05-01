@@ -10,401 +10,182 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-const C = {
-  reset: '\x1b[0m', dim: '\x1b[2m',
-  green: '\x1b[32m', cyan: '\x1b[36m',
-  yellow: '\x1b[33m', red: '\x1b[31m',
-  white: '\x1b[37m', bold: '\x1b[1m',
-};
-function ts() { return C.dim + new Date().toTimeString().slice(0, 8) + C.reset; }
-function log(tag, col, m) { console.log(`${ts()} ${col}[${tag}]${C.reset} ${m}`); }
+// ── logging ───────────────────────────────────────────────────────────────────
+const C = { r: '\x1b[0m', d: '\x1b[2m', g: '\x1b[32m', c: '\x1b[36m', y: '\x1b[33m', red: '\x1b[31m', w: '\x1b[37m', b: '\x1b[1m' };
+const ts = () => C.d + new Date().toTimeString().slice(0, 8) + C.r;
 const L = {
-  info: m => log('INFO ', C.cyan, m),
-  ok: m => log('OK   ', C.green, m),
-  warn: m => log('WARN ', C.yellow, m),
-  err: m => log('ERR  ', C.red, m),
-  room: m => log('ROOM ', C.white, m),
-  game: m => log('GAME ', C.green, m),
-  sock: m => log('SOCK ', C.dim, m),
+  ok: m => console.log(`${ts()} ${C.g}[OK  ]${C.r} ${m}`),
+  warn: m => console.log(`${ts()} ${C.y}[WARN]${C.r} ${m}`),
+  game: m => console.log(`${ts()} ${C.g}[GAME]${C.r} ${m}`),
+  room: m => console.log(`${ts()} ${C.w}[ROOM]${C.r} ${m}`),
+  sock: m => console.log(`${ts()} ${C.d}[SOCK]${C.r} ${m}`),
 };
 
-// ── Global username registry ──────────────────────────────────────────────────
-// Maps lowercase username → socket.id. Source of truth for uniqueness.
+// ── username registry — Maps lc-username → socketId ──────────────────────────
 const userRegistry = new Map();
-
-function isUsernameTaken(username) {
-  const lc = username.toLowerCase();
-  const existingSocketId = userRegistry.get(lc);
-  if (!existingSocketId) return false;
-  // Check if that socket is still actually connected
-  return io.sockets.sockets.get(existingSocketId)?.connected === true;
+function userTaken(lc) {
+  const sid = userRegistry.get(lc);
+  return sid ? io.sockets.sockets.get(sid)?.connected === true : false;
 }
+function regUser(lc, sid) { userRegistry.set(lc, sid); }
+function freeUser(lc) { if (lc) userRegistry.delete(lc); }
 
-function registerUser(username, socketId) {
-  userRegistry.set(username.toLowerCase(), socketId);
-}
-
-function unregisterUser(username) {
-  if (username) userRegistry.delete(username.toLowerCase());
-}
-
-// ── Room store ────────────────────────────────────────────────────────────────
+// ── rooms ─────────────────────────────────────────────────────────────────────
 const rooms = {};
 
 function makeCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code;
-  do { code = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
-  while (rooms[code]);
-  return code;
+  const ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c;
+  do { c = Array.from({ length: 4 }, () => ch[Math.floor(Math.random() * ch.length)]).join(''); }
+  while (rooms[c]);
+  return c;
 }
 
-function roomOf(socket) { return rooms[socket.data?.roomId]; }
-function broadcast(rid, ev, data) { io.to(rid).emit(ev, data); }
+// Create a fresh room object — called on create AND on full reset between rounds
+function makeRoom(id, gameType, hostId, hostUsername) {
+  return {
+    id, gameType,
+    hostId, hostUsername,
+    players: [],
+    state: 'lobby',          // lobby | starting | lights | ready | finished
+    lightsOut: false,
+    lightsOutAt: null,
+    clicked: new Set(),      // socketIds that have clicked this round
+    results: [],
+    sessionLeaderboard: [],
+    // timers — ALL stored so they can be cancelled
+    startTimer: null,      // setTimeout before startLights
+    lightsTimer: null,      // setInterval ticking lights on
+    goTimer: null,      // setTimeout for lights_out delay
+    endTimer: null,      // setTimeout for auto-end
+    cleanupTimer: null,      // setTimeout for empty-room cleanup
+  };
+}
 
-function pushState(rid) {
-  const r = rooms[rid];
-  if (!r) return;
-  broadcast(rid, 'room_state', {
-    id: r.id, gameType: r.gameType, hostId: r.hostId,
-    players: r.players, state: r.state,
-  });
+// Cancel every game-phase timer in a room (safe to call anytime)
+function cancelGameTimers(r) {
+  if (r.startTimer) { clearTimeout(r.startTimer); r.startTimer = null; }
+  if (r.lightsTimer) { clearInterval(r.lightsTimer); r.lightsTimer = null; }
+  if (r.goTimer) { clearTimeout(r.goTimer); r.goTimer = null; }
+  if (r.endTimer) { clearTimeout(r.endTimer); r.endTimer = null; }
+}
+
+// Reset round-level fields without touching session leaderboard or players
+function resetRound(r) {
+  cancelGameTimers(r);
+  r.state = 'lobby';
+  r.lightsOut = false;
+  r.lightsOutAt = null;
+  r.clicked = new Set();
+  r.results = [];
+}
+
+// ── broadcast helpers ─────────────────────────────────────────────────────────
+const bcast = (rid, ev, data) => io.to(rid).emit(ev, data);
+
+function pushRoomState(rid) {
+  const r = rooms[rid]; if (!r) return;
+  bcast(rid, 'room_state', { id: r.id, gameType: r.gameType, hostId: r.hostId, players: r.players, state: r.state });
 }
 
 function pushRoomList() {
-  const list = Object.values(rooms)
+  io.emit('room_list', Object.values(rooms)
     .filter(r => r.players.length >= 1 && r.state === 'lobby')
-    .map(r => ({
-      id: r.id,
-      gameType: r.gameType,
-      playerCount: r.players.length,
-      hostUsername: r.hostUsername,
-    }));
-  io.emit('room_list', list);
+    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
 }
 
 function pushPlayersList() {
-  // Build list of all sockets that have claimed a username
-  const players = [];
-  for (const [id, sock] of io.sockets.sockets) {
+  const list = [];
+  for (const [, sock] of io.sockets.sockets) {
     if (!sock.connected || !sock.data?.username) continue;
-    const rid = sock.data?.roomId;
+    const rid = sock.data.roomId || null;
     const room = rid ? rooms[rid] : null;
-    players.push({
-      username: sock.data.username,
-      roomId: rid || null,
-      gameType: room ? room.gameType : null,
-    });
+    list.push({ username: sock.data.username, roomId: rid, gameType: room?.gameType || null });
   }
-  // Sort: hub users first, then in-game, alphabetically within each group
-  players.sort((a, b) => {
-    if (!!a.roomId !== !!b.roomId) return a.roomId ? 1 : -1;
-    return a.username.localeCompare(b.username);
-  });
-  io.emit('players_list', players);
+  list.sort((a, b) => (!!a.roomId - !!b.roomId) || a.username.localeCompare(b.username));
+  io.emit('players_list', list);
 }
 
-// ── Deferred room cleanup ─────────────────────────────────────────────────────
-function scheduleCleanup(rid) {
-  const r = rooms[rid];
-  if (!r) return;
-  if (r.cleanupTimer) clearTimeout(r.cleanupTimer);
-
-  r.cleanupTimer = setTimeout(() => {
-    const rr = rooms[rid];
-    if (!rr) return;
-    let shouldDelete = rr.players.length === 0;
-    if (rr.players.length === 1) {
-      const p = rr.players[0];
-      const stillConnected = io.sockets.sockets.get(p.id)?.connected === true;
-      if (!stillConnected) shouldDelete = true;
-    }
-    if (shouldDelete) {
-      if (rr.gameTimer) clearTimeout(rr.gameTimer);
-      delete rooms[rr.id];
-      L.room(`Cleaned   [${rid}] — empty/stale after grace period`);
-      pushRoomList();
-    } else {
-      L.room(`Grace cancelled [${rid}] — active player(s) present`);
-    }
-  }, 15000);
-
-  L.room(`Grace     [${rid}] — cleanup in 15s (last player or empty)`);
+function pushSessionLB(rid) {
+  const r = rooms[rid]; if (!r) return;
+  bcast(rid, 'session_leaderboard', r.sessionLeaderboard);
 }
 
-// ── Connection ────────────────────────────────────────────────────────────────
-io.on('connection', socket => {
-  L.sock(`Connect   ${socket.id.slice(0, 8)}`);
-
-  // Send current state on connect
-  // (players_list will be sent again after claim_username)
-  socket.emit('room_list', Object.values(rooms)
-    .filter(r => r.players.length >= 1 && r.state === 'lobby')
-    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
-
-  // CLAIM USERNAME ─────────────────────────────────────────────────────────────
-  // Called when user hits "access hub". Atomically claims the username.
-  socket.on('claim_username', ({ username }) => {
-    const lc = username.toLowerCase();
-    if (isUsernameTaken(lc)) {
-      socket.emit('username_claim_result', { ok: false, reason: `username "${lc}" is already taken on this network.` });
-      return;
-    }
-    // Release any previous username this socket had (e.g. re-login)
-    if (socket.data.username) unregisterUser(socket.data.username);
-    registerUser(lc, socket.id);
-    socket.data.username = lc;
-    socket.emit('username_claim_result', { ok: true, username: lc });
-    pushPlayersList();
-    L.ok(`Claimed   username="${lc}" by ${socket.id.slice(0, 8)}`);
-  });
-
-  // CREATE ────────────────────────────────────────────────────────────────────
-  socket.on('create_room', ({ username, gameType }) => {
-    const lc = username.toLowerCase();
-    const id = makeCode();
-    rooms[id] = {
-      id, gameType,
-      hostId: socket.id,
-      hostUsername: lc,
-      players: [{ id: socket.id, username: lc }],
-      state: 'lobby',
-      results: [],
-      sessionLeaderboard: [],
-      clicked: new Set(),
-      lightsOut: false,
-      lightsOutAt: null,
-      gameTimer: null,
-      cleanupTimer: null,
-    };
-    socket.join(id);
-    socket.data.roomId = id;
-    socket.data.username = lc;
-    socket.emit('room_created', { roomId: id });
-    pushState(id);
-    pushRoomList();
-    L.room(`Created   [${id}] host=${lc} game=${gameType}`);
-  });
-
-  // JOIN ──────────────────────────────────────────────────────────────────────
-  socket.on('join_room', ({ username, roomId }) => {
-    const lc = username.toLowerCase();
-    const r = rooms[roomId];
-
-    if (!r) {
-      L.warn(`join_room  [${roomId}] not found — requested by ${lc}`);
-      return socket.emit('join_error', `Room "${roomId}" not found. Check the code.`);
-    }
-
-    if (r.cleanupTimer) {
-      clearTimeout(r.cleanupTimer);
-      r.cleanupTimer = null;
-      L.room(`Reprieve  [${roomId}] cleanup cancelled (${lc} reconnected)`);
-    }
-
-    // RECONNECT: same username already in room
-    const existing = r.players.find(p => p.username === lc);
-    if (existing) {
-      const oldId = existing.id;
-      existing.id = socket.id;
-      if (r.hostId === oldId) r.hostId = socket.id;
-      if (r.clicked.has(oldId)) { r.clicked.delete(oldId); r.clicked.add(socket.id); }
-      // Update registry
-      registerUser(lc, socket.id);
-      socket.join(roomId);
-      socket.data.roomId = roomId;
-      socket.data.username = lc;
-      socket.emit('room_joined', { roomId, gameType: r.gameType, isHost: r.hostId === socket.id });
-      pushState(roomId);
-      pushSessionLeaderboard(roomId);
-      pushPlayersList();
-      L.ok(`Reconnect [${roomId}] ${lc} (${oldId.slice(0, 6)}→${socket.id.slice(0, 6)})`);
-      return;
-    }
-
-    // NEW player — username must already be claimed (via claim_username)
-    // Double-check it's actually this socket's claimed name
-    if (socket.data.username !== lc) {
-      return socket.emit('join_error', `Username mismatch. Please refresh and try again.`);
-    }
-
-    if (r.state !== 'lobby') {
-      L.warn(`join_room  [${roomId}] blocked — state=${r.state}`);
-      return socket.emit('join_error', 'Game already in progress.');
-    }
-
-    r.players.push({ id: socket.id, username: lc });
-    socket.join(roomId);
-    socket.data.roomId = roomId;
-    socket.emit('room_joined', { roomId, gameType: r.gameType, isHost: false });
-    pushState(roomId);
-    pushSessionLeaderboard(roomId);
-    broadcast(roomId, 'sys', `${lc} joined.`);
-    L.ok(`Joined    [${roomId}] ${lc} (${r.players.length} players)`);
-  });
-
-  // START ─────────────────────────────────────────────────────────────────────
-  socket.on('start_game', () => {
-    const r = roomOf(socket);
-    if (!r || r.hostId !== socket.id || r.state !== 'lobby') return;
-    r.state = 'starting';
-    r.results = [];
-    r.clicked = new Set();
-    r.lightsOut = false;
-    broadcast(r.id, 'game_starting');
-    pushRoomList();
-    pushPlayersList();
-    setTimeout(() => startLights(r.id), 3600);
-    L.game(`Start     [${r.id}] by ${socket.data.username} — ${r.players.length} drivers`);
-  });
-
-  // CLICK ─────────────────────────────────────────────────────────────────────
-  socket.on('player_click', () => {
-    const r = roomOf(socket);
-    if (!r || r.clicked.has(socket.id)) return;
-    if (r.state !== 'lights' && r.state !== 'ready') return;
-    r.clicked.add(socket.id);
-
-    if (!r.lightsOut) {
-      r.results.push({ id: socket.id, username: socket.data.username, time: null, jump: true });
-      socket.emit('you_jumped');
-      L.warn(`JumpStart [${r.id}] ${socket.data.username}`);
-    } else {
-      const ms = Date.now() - r.lightsOutAt;
-      r.results.push({ id: socket.id, username: socket.data.username, time: ms, jump: false });
-      socket.emit('your_time', { time: ms });
-      L.game(`Click     [${r.id}] ${socket.data.username} → ${ms}ms`);
-    }
-
-    if (r.clicked.size >= r.players.length) {
-      clearTimeout(r.gameTimer);
-      setTimeout(() => endGame(r.id), 600);
-    }
-  });
-
-  // PLAY AGAIN ────────────────────────────────────────────────────────────────
-  socket.on('play_again', () => {
-    const r = roomOf(socket);
-    if (!r || r.hostId !== socket.id) return;
-    r.state = 'lobby';
-    r.results = [];
-    r.clicked = new Set();
-    clearTimeout(r.gameTimer);
-    broadcast(r.id, 'back_to_lobby');
-    pushState(r.id);
-    pushRoomList();
-    pushPlayersList();
-    L.room(`PlayAgain [${r.id}] by ${socket.data.username}`);
-  });
-
-  // GET ROOM LIST ──────────────────────────────────────────────────────────────
-  socket.on('get_room_list', () => {
-    socket.emit('room_list', Object.values(rooms)
-      .filter(r => r.players.length >= 1 && r.state === 'lobby')
-      .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
-  });
-
-  // DISCONNECT ────────────────────────────────────────────────────────────────
-  socket.on('disconnect', () => {
-    const username = socket.data?.username;
-    L.sock(`Disconnect ${socket.id.slice(0, 8)} (${username || '?'})`);
-
-    // Release username from global registry
-    if (username) {
-      const registeredId = userRegistry.get(username.toLowerCase());
-      if (registeredId === socket.id) unregisterUser(username);
-    }
-    pushPlayersList();
-
-    const rid = socket.data?.roomId;
-    if (!rid || !rooms[rid]) return;
-
-    const r = rooms[rid];
-    const name = username || '?';
-    const wasHost = r.hostId === socket.id;
-
-    const playerIdx = r.players.findIndex(p => p.id === socket.id);
-    if (playerIdx === -1) return;
-
-    const isLastPlayer = r.players.length === 1;
-
-    if (isLastPlayer) {
-      scheduleCleanup(rid);
-      L.room(`LastPlayer [${rid}] ${name} — keeping entry (grace 15s for reconnect)`);
-      return;
-    }
-
-    r.players.splice(playerIdx, 1);
-
-    if (wasHost) {
-      r.hostId = r.players[0].id;
-      io.to(r.hostId).emit('you_are_host');
-      L.room(`NewHost   [${rid}] → ${r.players[0].username}`);
-    }
-
-    pushState(rid);
-    pushRoomList();
-    broadcast(rid, 'sys', `${name} left.`);
-    L.room(`Left      [${rid}] ${name} (${r.players.length} remaining)`);
-  });
-});
-
-// ── Session leaderboard ───────────────────────────────────────────────────────
-function pushSessionLeaderboard(roomId) {
-  const r = rooms[roomId];
-  if (!r) return;
-  broadcast(roomId, 'session_leaderboard', r.sessionLeaderboard);
-}
-
-function updateSessionLeaderboard(roomId, results) {
-  const r = rooms[roomId];
-  if (!r) return;
+function updateSessionLB(rid, results) {
+  const r = rooms[rid]; if (!r) return;
   results.forEach(res => {
     if (res.jump || res.dns || res.time === null) return;
-    const existing = r.sessionLeaderboard.find(e => e.username === res.username);
-    if (!existing) {
-      r.sessionLeaderboard.push({ username: res.username, bestTime: res.time, runs: 1 });
-    } else {
-      if (res.time < existing.bestTime) existing.bestTime = res.time;
-      existing.runs++;
-    }
+    const e = r.sessionLeaderboard.find(x => x.username === res.username);
+    if (!e) r.sessionLeaderboard.push({ username: res.username, bestTime: res.time, runs: 1 });
+    else { if (res.time < e.bestTime) e.bestTime = res.time; e.runs++; }
   });
   r.sessionLeaderboard.sort((a, b) => a.bestTime - b.bestTime);
-  pushSessionLeaderboard(roomId);
+  pushSessionLB(rid);
 }
 
-// ── Game logic ────────────────────────────────────────────────────────────────
-function startLights(roomId) {
-  const r = rooms[roomId];
-  if (!r) return;
+// ── game logic ────────────────────────────────────────────────────────────────
+function startGame(rid) {
+  const r = rooms[rid]; if (!r) return;
+
+  // Reset round fields (cancels any stale timers from previous round)
+  resetRound(r);
+  r.state = 'starting';
+
+  bcast(rid, 'game_starting');
+  pushRoomList();   // room no longer in lobby
+  pushPlayersList();
+
+  // Wait 3.6s then begin the lights sequence
+  r.startTimer = setTimeout(() => {
+    r.startTimer = null;
+    startLights(rid);
+  }, 1000);
+
+  L.game(`Start [${rid}] ${r.players.length} players`);
+}
+
+function startLights(rid) {
+  const r = rooms[rid]; if (!r) return;
   r.state = 'lights';
-  broadcast(roomId, 'lights_begin');
+  bcast(rid, 'lights_begin');
 
   let i = 0;
-  const tick = setInterval(() => {
-    broadcast(roomId, 'light_on', { i });
+  r.lightsTimer = setInterval(() => {
+    bcast(rid, 'light_on', { i });
     i++;
-    if (i === 5) {
-      clearInterval(tick);
-      const delay = Math.round(600 + Math.random() * 2800);
-      L.game(`AllOn     [${roomId}] extinguish in ${delay}ms`);
-      setTimeout(() => {
-        r.state = 'ready';
-        r.lightsOut = true;
-        r.lightsOutAt = Date.now();
-        broadcast(roomId, 'lights_out');
-        L.game(`LightsOut [${roomId}] GO!`);
-        r.gameTimer = setTimeout(() => endGame(roomId), 8000);
-      }, delay);
-    }
+    if (i < 5) return;
+
+    // All 5 lights on — stop interval, schedule random extinguish
+    clearInterval(r.lightsTimer);
+    r.lightsTimer = null;
+
+    const delay = Math.round(600 + Math.random() * 2800);
+    r.goTimer = setTimeout(() => {
+      r.goTimer = null;
+      r.state = 'ready';
+      r.lightsOut = true;
+      r.lightsOutAt = Date.now();
+      bcast(rid, 'lights_out');
+      L.game(`GO [${rid}]`);
+
+      // Auto-end after 3s if not everyone clicked
+      r.endTimer = setTimeout(() => {
+        r.endTimer = null;
+        endGame(rid);
+      }, 3000);
+
+    }, delay);
   }, 850);
 }
 
-function endGame(roomId) {
-  const r = rooms[roomId];
-  if (!r || r.state === 'finished') return;
+function endGame(rid) {
+  const r = rooms[rid]; if (!r) return;
+  if (r.state === 'finished' || r.state === 'lobby') return;
+
+  cancelGameTimers(r);   // kill any remaining timers
   r.state = 'finished';
 
+  // DNS for anyone who never clicked
   r.players.forEach(p => {
     if (!r.clicked.has(p.id))
       r.results.push({ id: p.id, username: p.username, time: null, jump: false, dns: true });
@@ -419,29 +200,226 @@ function endGame(roomId) {
     return 0;
   });
 
-  broadcast(roomId, 'results', { results: sorted });
-  updateSessionLeaderboard(roomId, sorted);
+  bcast(rid, 'results', { results: sorted });
+  updateSessionLB(rid, sorted);
 
-  const w = sorted[0];
-  L.game(`Results   [${roomId}] P1=${w?.username} ${w?.jump ? 'JUMP' : w?.dns ? 'DNS' : (w?.time + 'ms')}`);
+  const w = sorted.find(x => !x.jump && !x.dns);
+  L.game(`Results [${rid}] winner=${w?.username} ${w?.time}ms`);
 }
 
-// ── Start server ──────────────────────────────────────────────────────────────
+// ── room cleanup ──────────────────────────────────────────────────────────────
+function scheduleCleanup(rid) {
+  const r = rooms[rid]; if (!r) return;
+  if (r.cleanupTimer) clearTimeout(r.cleanupTimer);
+  r.cleanupTimer = setTimeout(() => {
+    const rr = rooms[rid]; if (!rr) return;
+    const allGone = rr.players.every(p => !io.sockets.sockets.get(p.id)?.connected);
+    if (rr.players.length === 0 || allGone) {
+      cancelGameTimers(rr);
+      delete rooms[rid];
+      pushRoomList();
+      L.room(`Cleaned [${rid}]`);
+    }
+  }, 15000);
+}
+
+// ── socket handlers ───────────────────────────────────────────────────────────
+io.on('connection', socket => {
+  L.sock(`+ ${socket.id.slice(0, 8)}`);
+
+  // Send lobby room list on connect
+  socket.emit('room_list', Object.values(rooms)
+    .filter(r => r.players.length >= 1 && r.state === 'lobby')
+    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
+
+  // ── claim_username ──────────────────────────────────────────────────────────
+  socket.on('claim_username', ({ username }) => {
+    const lc = username.toLowerCase();
+    if (userTaken(lc)) {
+      socket.emit('username_claim_result', { ok: false, reason: `"${lc}" is already taken on this network.` });
+      return;
+    }
+    if (socket.data.username) freeUser(socket.data.username);
+    regUser(lc, socket.id);
+    socket.data.username = lc;
+    socket.emit('username_claim_result', { ok: true, username: lc });
+    pushPlayersList();
+    L.ok(`claim "${lc}" ${socket.id.slice(0, 8)}`);
+  });
+
+  // ── create_room ─────────────────────────────────────────────────────────────
+  socket.on('create_room', ({ username, gameType }) => {
+    const lc = username.toLowerCase();
+    const id = makeCode();
+    const r = makeRoom(id, gameType, socket.id, lc);
+    r.players.push({ id: socket.id, username: lc });
+    rooms[id] = r;
+    socket.join(id);
+    socket.data.roomId = id;
+    socket.data.username = lc;
+    socket.emit('room_created', { roomId: id });
+    pushRoomState(id);
+    pushRoomList();
+    L.room(`Created [${id}] host=${lc} game=${gameType}`);
+  });
+
+  // ── join_room ───────────────────────────────────────────────────────────────
+  socket.on('join_room', ({ username, roomId }) => {
+    const lc = username.toLowerCase();
+    const r = rooms[roomId];
+
+    if (!r) return socket.emit('join_error', `Room "${roomId}" not found.`);
+
+    // Cancel cleanup grace if active
+    if (r.cleanupTimer) { clearTimeout(r.cleanupTimer); r.cleanupTimer = null; }
+
+    // Reconnect: same username already exists in room
+    const existing = r.players.find(p => p.username === lc);
+    if (existing) {
+      const oldId = existing.id;
+      existing.id = socket.id;
+      if (r.hostId === oldId) r.hostId = socket.id;
+      if (r.clicked.has(oldId)) { r.clicked.delete(oldId); r.clicked.add(socket.id); }
+      regUser(lc, socket.id);
+      socket.join(roomId);
+      socket.data.roomId = roomId;
+      socket.data.username = lc;
+      socket.emit('room_joined', { roomId, gameType: r.gameType, isHost: r.hostId === socket.id });
+      pushRoomState(roomId);
+      pushSessionLB(roomId);
+      pushPlayersList();
+      L.ok(`Reconnect [${roomId}] ${lc}`);
+      return;
+    }
+
+    // New join — must have claimed username on this socket
+    if (socket.data.username !== lc)
+      return socket.emit('join_error', 'Username mismatch. Please refresh.');
+
+    if (r.state !== 'lobby')
+      return socket.emit('join_error', 'Game already in progress.');
+
+    r.players.push({ id: socket.id, username: lc });
+    socket.join(roomId);
+    socket.data.roomId = roomId;
+    socket.data.username = lc;
+    socket.emit('room_joined', { roomId, gameType: r.gameType, isHost: false });
+    pushRoomState(roomId);
+    pushSessionLB(roomId);
+    pushPlayersList();
+    bcast(roomId, 'sys', `${lc} joined.`);
+    L.ok(`Joined [${roomId}] ${lc} (${r.players.length})`);
+  });
+
+  // ── start_game ──────────────────────────────────────────────────────────────
+  socket.on('start_game', () => {
+    const r = rooms[socket.data?.roomId];
+    if (!r || r.hostId !== socket.id || r.state !== 'lobby') return;
+    startGame(r.id);
+  });
+
+  // ── player_click ────────────────────────────────────────────────────────────
+  // Server is sole authority: only accepts clicks in 'lights' or 'ready' state,
+  // and only one click per player per round (tracked by r.clicked Set).
+  socket.on('player_click', () => {
+    const r = rooms[socket.data?.roomId];
+    if (!r) return;
+    if (r.state !== 'lights' && r.state !== 'ready') return;  // wrong phase
+    if (r.clicked.has(socket.id)) return;                       // already clicked
+
+    r.clicked.add(socket.id);
+
+    if (!r.lightsOut) {
+      // Jump start
+      r.results.push({ id: socket.id, username: socket.data.username, time: null, jump: true, dns: false });
+      socket.emit('you_jumped');
+      L.warn(`Jump [${r.id}] ${socket.data.username}`);
+    } else {
+      // Valid reaction
+      const ms = Date.now() - r.lightsOutAt;
+      r.results.push({ id: socket.id, username: socket.data.username, time: ms, jump: false, dns: false });
+      socket.emit('your_time', { time: ms });
+      L.game(`Click [${r.id}] ${socket.data.username} ${ms}ms`);
+    }
+
+    // If everyone has clicked, end immediately (with small delay for last event to land)
+    if (r.clicked.size >= r.players.length) {
+      cancelGameTimers(r);
+      r.endTimer = setTimeout(() => { r.endTimer = null; endGame(r.id); }, 400);
+    }
+  });
+
+  // ── play_again ──────────────────────────────────────────────────────────────
+  socket.on('play_again', () => {
+    const r = rooms[socket.data?.roomId];
+    if (!r || r.hostId !== socket.id) return;
+    resetRound(r);           // cancels ALL timers, resets state to lobby
+    bcast(r.id, 'back_to_lobby');
+    pushRoomState(r.id);
+    pushRoomList();
+    pushPlayersList();
+    L.room(`PlayAgain [${r.id}]`);
+  });
+
+  // ── get_room_list ───────────────────────────────────────────────────────────
+  socket.on('get_room_list', () => {
+    socket.emit('room_list', Object.values(rooms)
+      .filter(r => r.players.length >= 1 && r.state === 'lobby')
+      .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
+  });
+
+  // ── disconnect ──────────────────────────────────────────────────────────────
+  socket.on('disconnect', () => {
+    const username = socket.data?.username;
+    L.sock(`- ${socket.id.slice(0, 8)} (${username || '?'})`);
+
+    if (username && userRegistry.get(username) === socket.id) freeUser(username);
+    pushPlayersList();
+
+    const rid = socket.data?.roomId;
+    if (!rid || !rooms[rid]) return;
+    const r = rooms[rid];
+
+    const idx = r.players.findIndex(p => p.id === socket.id);
+    if (idx === -1) return;
+
+    if (r.players.length === 1) { scheduleCleanup(rid); return; }
+
+    const wasHost = r.hostId === socket.id;
+    r.players.splice(idx, 1);
+
+    if (wasHost) {
+      r.hostId = r.players[0].id;
+      io.to(r.hostId).emit('you_are_host');
+      L.room(`NewHost [${rid}] ${r.players[0].username}`);
+    }
+
+    // If the game was in progress and everyone remaining already clicked, end it
+    if ((r.state === 'lights' || r.state === 'ready') && r.clicked.size >= r.players.length) {
+      cancelGameTimers(r);
+      r.endTimer = setTimeout(() => { r.endTimer = null; endGame(rid); }, 400);
+    }
+
+    pushRoomState(rid);
+    pushRoomList();
+    bcast(rid, 'sys', `${username || '?'} left.`);
+  });
+});
+
+// ── start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   let lan = 'localhost';
   for (const ifaces of Object.values(os.networkInterfaces()))
-    for (const net of ifaces)
-      if (net.family === 'IPv4' && !net.internal) { lan = net.address; break; }
+    for (const iface of ifaces)
+      if (iface.family === 'IPv4' && !iface.internal) { lan = iface.address; break; }
 
-  console.log(`\n${C.bold}${C.white}  ██╗      █████╗ ███╗   ██╗ ██████╗${C.reset}`);
-  console.log(`${C.bold}${C.white}  ██║     ██╔══██╗████╗  ██║██╔═████╗${C.reset}`);
-  console.log(`${C.bold}${C.white}  ██║     ███████║██╔██╗ ██║██║██╔██║${C.reset}`);
-  console.log(`${C.bold}${C.white}  ██║     ██╔══██║██║╚██╗██║████╔╝██║${C.reset}`);
-  console.log(`${C.bold}${C.white}  ███████╗██║  ██║██║ ╚████║╚██████╔╝${C.reset}`);
-  console.log(`${C.bold}${C.white}  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝${C.reset}\n`);
-  console.log(`  ${C.green}▶${C.reset}  Local   → ${C.cyan}http://localhost:${PORT}${C.reset}`);
-  console.log(`  ${C.green}▶${C.reset}  Network → ${C.cyan}http://${lan}:${PORT}${C.reset}  ${C.dim}← share this with friends${C.reset}\n`);
-  console.log(`${C.dim}  ─────────────────────────────────────────────${C.reset}\n`);
-  L.info('Server ready. Waiting for connections...\n');
+  console.log(`\n${C.b}${C.w}  ██╗      █████╗ ███╗   ██╗ ██████╗${C.r}`);
+  console.log(`${C.b}${C.w}  ██║     ██╔══██╗████╗  ██║██╔═████╗${C.r}`);
+  console.log(`${C.b}${C.w}  ██║     ███████║██╔██╗ ██║██║██╔██║${C.r}`);
+  console.log(`${C.b}${C.w}  ██║     ██╔══██║██║╚██╗██║████╔╝██║${C.r}`);
+  console.log(`${C.b}${C.w}  ███████╗██║  ██║██║ ╚████║╚██████╔╝${C.r}`);
+  console.log(`${C.b}${C.w}  ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝${C.r}\n`);
+  console.log(`  ${C.g}▶${C.r}  Local   → ${C.c}http://localhost:${PORT}${C.r}`);
+  console.log(`  ${C.g}▶${C.r}  Network → ${C.c}http://${lan}:${PORT}${C.r}\n`);
 });
