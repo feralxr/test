@@ -1209,7 +1209,7 @@
       players.forEach(p => {
         const d = document.createElement('div');
         d.className = 'drv' + (p.id === socket.id ? ' me' : '');
-        d.innerHTML = `<div class="drv-dot"></div><div class="drv-name">${esc(p.username)}</div><div class="drv-badge">${p.id === hostId ? 'DIR' : 'DRV'}</div>`;
+        d.innerHTML = `<div class="drv-dot"></div><div class="drv-name">${esc(p.username)}</div><div class="drv-badge">${p.id === hostId ? 'HST' : 'MBR'}</div>`;
         g('drvlist').appendChild(d);
       });
     }
