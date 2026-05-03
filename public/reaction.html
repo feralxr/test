@@ -153,14 +153,6 @@
       border-left-color: var(--red)
     }
 
-    .drv-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      flex-shrink: 0
-    }
-
     .drv-name {
       flex: 1;
       color: var(--white);
@@ -169,17 +161,17 @@
       white-space: nowrap
     }
 
-    .drv-badge {
-      font-size: 9px;
-      letter-spacing: 1px;
-      color: var(--dim);
-      padding: 2px 6px;
-      border: 1px solid var(--dim)
-    }
-
-    .drv.me .drv-badge {
-      border-color: var(--red);
-      color: var(--red)
+    .drv-host-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: #444;
+      padding: 1px 7px;
+      border: 1px solid #2a2a2a;
+      font-family: var(--mono);
+      flex-shrink: 0;
+      line-height: 16px
     }
 
     #logbox {
@@ -321,171 +313,42 @@
       text-align: center
     }
 
-    /* ── LIGHTS PANEL ──────────────────────────────── */
+    /* ── LIGHTS ─────────────────────────────────────── */
     #pnl-lights {
       gap: 40px
     }
 
-    /* The gantry — just a clean dark bar, like the real thing */
     .gantry {
-      position: relative;
-      background: #0a0a0a;
-      border: 1px solid #1c1c1c;
-      padding: 32px 40px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0;
-    }
-
-    /* Thin red top accent line */
-    .gantry::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--red);
-      opacity: .6;
+      gap: 16px;
+      padding: 28px 36px;
+      background: #080808;
+      border: 1px solid #181818;
+      width: 100%;
     }
 
     .lights-row {
       display: flex;
-      gap: 0;
-      align-items: center;
+      gap: 16px;
     }
 
-    /* Dividers between lights */
-    .lights-row .f1l+.f1l {
-      border-left: 1px solid #161616;
-    }
-
-    /* each light cell */
+    /* Each light: one element, no pseudo-elements */
     .f1l {
-      position: relative;
-      width: 88px;
-      height: 88px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #0e0e0e;
+      border: 2px solid #1a1a1a;
       flex-shrink: 0;
     }
 
-    /* the circle light */
-    .f1l-circle {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: #0d0d0d;
-      border: 1px solid #1e1e1e;
-      position: relative;
-      transition: border-color .05s;
-    }
-
-    /* off: subtle inner shadow to look recessed */
-    .f1l-circle::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      box-shadow: inset 0 2px 8px rgba(0, 0, 0, .9);
-    }
-
-    /* floor glow — invisible when off */
-    .f1l-glow {
-      position: absolute;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: transparent;
-      filter: blur(14px);
-      opacity: 0;
-      transition: opacity .05s;
-      pointer-events: none;
-    }
-
-    /* ON state */
-    .f1l.on .f1l-circle {
+    /* ON: instant colour switch */
+    .f1l.on {
       background: #e10600;
-      border-color: #ff2000;
-      box-shadow:
-        0 0 0 2px rgba(225, 6, 0, .15),
-        inset 0 1px 0 rgba(255, 120, 60, .5),
-        inset 0 -2px 6px rgba(0, 0, 0, .4);
-    }
-
-    .f1l.on .f1l-circle::after {
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, .2);
-    }
-
-    .f1l.on .f1l-glow {
-      background: radial-gradient(circle, rgba(225, 6, 0, .8), transparent 70%);
-      opacity: 1;
-      width: 80px;
-      height: 80px;
-      margin: -14px;
-    }
-
-    /* pop-in animation when light comes on */
-    @keyframes lightOn {
-      0% {
-        transform: scale(.7);
-        opacity: 0
-      }
-
-      70% {
-        transform: scale(1.08)
-      }
-
-      100% {
-        transform: scale(1);
-        opacity: 1
-      }
-    }
-
-    .f1l.on .f1l-circle {
-      animation: lightOn .12s cubic-bezier(.2, 0, .3, 1.4) forwards
-    }
-
-    /* lights-out: quick fade */
-    @keyframes lightOff {
-      0% {
-        opacity: 1;
-        transform: scale(1)
-      }
-
-      40% {
-        opacity: .8;
-        transform: scale(1.04)
-      }
-
-      100% {
-        opacity: 0;
-        transform: scale(.9)
-      }
-    }
-
-    .f1l.off-flash .f1l-circle {
-      animation: lightOff .2s ease-out forwards
-    }
-
-    .f1l.off-flash .f1l-glow {
-      animation: lightOff .2s ease-out forwards
-    }
-
-    /* light number label */
-    .f1l-num {
-      position: absolute;
-      bottom: 10px;
-      font-family: var(--mono);
-      font-size: 8px;
-      color: #222;
-      letter-spacing: 1px;
-      user-select: none;
-    }
-
-    .f1l.on .f1l-num {
-      color: rgba(255, 100, 60, .4);
+      border-color: #b80000;
+      box-shadow: 0 0 16px rgba(225, 6, 0, .5);
     }
 
     /* ── ACTION BUTTON ────────────────────────────── */
@@ -875,6 +738,124 @@
     ::-webkit-scrollbar-thumb {
       background: var(--line)
     }
+
+    /* ── OWNER ──────────────────────────────────────── */
+    /* ── OWNER ── */
+    .owner-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      vertical-align: middle;
+    }
+
+    .owner-name {
+      color: #c8a400;
+      font-weight: 700;
+    }
+
+    .owner-crown {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      top: -1px;
+    }
+
+    .owner-crown svg {
+      fill: #c8a400;
+      display: block;
+    }
+
+    /* ── SERVER OFFLINE OVERLAY ─────────────────────────────────────────── */
+    #offline-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, .92);
+      backdrop-filter: blur(6px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      animation: offFadeIn .3s ease;
+    }
+
+    #offline-overlay.show {
+      display: flex;
+    }
+
+    @keyframes offFadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .off-icon {
+      font-size: 48px;
+      color: #ff3333;
+      animation: offPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes offPulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .off-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 8px;
+      color: #ff3333;
+      text-transform: uppercase;
+    }
+
+    .off-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #444;
+      text-transform: uppercase;
+    }
+
+    .off-reconnect {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: #2a2a2a;
+      margin-top: 12px;
+    }
+
+    .off-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff3333;
+      animation: offPulse 1.2s ease-in-out infinite;
+    }
+
+    .off-border {
+      width: 280px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #ff3333, transparent);
+      opacity: .3;
+    }
   </style>
 </head>
 
@@ -922,31 +903,11 @@
       <div class="pnl" id="pnl-lights">
         <div class="gantry">
           <div class="lights-row">
-            <div class="f1l" id="l0">
-              <div class="f1l-glow"></div>
-              <div class="f1l-circle"></div>
-              <div class="f1l-num">01</div>
-            </div>
-            <div class="f1l" id="l1">
-              <div class="f1l-glow"></div>
-              <div class="f1l-circle"></div>
-              <div class="f1l-num">02</div>
-            </div>
-            <div class="f1l" id="l2">
-              <div class="f1l-glow"></div>
-              <div class="f1l-circle"></div>
-              <div class="f1l-num">03</div>
-            </div>
-            <div class="f1l" id="l3">
-              <div class="f1l-glow"></div>
-              <div class="f1l-circle"></div>
-              <div class="f1l-num">04</div>
-            </div>
-            <div class="f1l" id="l4">
-              <div class="f1l-glow"></div>
-              <div class="f1l-circle"></div>
-              <div class="f1l-num">05</div>
-            </div>
+            <div class="f1l" id="l0"></div>
+            <div class="f1l" id="l1"></div>
+            <div class="f1l" id="l2"></div>
+            <div class="f1l" id="l3"></div>
+            <div class="f1l" id="l4"></div>
           </div>
         </div>
         <button id="abtn">WAITING...</button>
@@ -1015,6 +976,14 @@
     const socket = io();
     const g = id => document.getElementById(id);
     const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ownerHtml = (u) =>
+      `<span class="owner-wrap"><span class="owner-crown"><svg width="12" height="10" viewBox="0 0 12 10"><path d="M0 9h12v1.5H0zm0-1.5l2-5 3 3 1-5.5 1 5.5 3-3 2 5z"/></svg></span><span class="owner-name">${esc(u)}</span></span>`;
+    const renderUN = (u, isOwner) => isOwner ? ownerHtml(u) : esc(u);
+    // owner name without badge — for results and session LB
+    const ownerHtmlPlain = (u) =>
+      `<span class="owner-wrap"><span class="owner-crown"><svg width="12" height="10" viewBox="0 0 12 10"><path d="M0 9h12v1.5H0zm0-1.5l2-5 3 3 1-5.5 1 5.5 3-3 2 5z"/></svg></span><span class="owner-name">${esc(u)}</span></span>`;
+    const renderUNplain = (u, isOwner) => isOwner ? ownerHtmlPlain(u) : esc(u);
+
     const ROOM = new URLSearchParams(location.search).get('room');
     const IS_HOST = new URLSearchParams(location.search).get('host') === '1';
 
@@ -1097,7 +1066,9 @@
     // SOCKET HANDLERS — purely display layer, server is the authority
     // ─────────────────────────────────────────────────────────────────────────────
 
-    socket.on('connect', () => socket.emit('claim_username', { username: ME }));
+    socket.on('connect', () => { document.getElementById('offline-overlay').classList.remove('show'); socket.emit('claim_username', { username: ME }); });
+    socket.on('disconnect', () => { if (!window._navigating) document.getElementById('offline-overlay').classList.add('show'); });
+    window.addEventListener('beforeunload', () => { window._navigating = true; });
 
     socket.on('username_claim_result', ({ ok, reason }) => {
       if (!ok) { toast('err', 'USERNAME TAKEN', reason); setTimeout(() => location.href = '/', 3000); return; }
@@ -1113,6 +1084,11 @@
       g('drv-count').textContent = room.players.length;
       g('t-total').textContent = room.players.length;
       if (room.hostId === socket.id && !isHost) { isHost = true; syncHost(); }
+      // Sync round number from server so late-joiners see correct round
+      if (room.roundNumber !== undefined) {
+        round = room.roundNumber || 1;
+        g('t-round').textContent = 'RD ' + round;
+      }
       renderDrivers(room.players, room.hostId);
     });
 
@@ -1121,7 +1097,7 @@
 
     // ── game_starting: server entered 'starting' state, lights begin in 3.6s ─────
     socket.on('game_starting', () => {
-      for (let i = 0; i < 5; i++) { g('l' + i).classList.remove('on', 'off-flash'); }
+      for (let i = 0; i < 5; i++) g('l' + i).classList.remove('on');
       g('mytime').style.display = 'none';
       g('t-clicked').textContent = '0';
       btnIdle();
@@ -1140,13 +1116,8 @@
 
     // ── lights_out: server entered 'ready', valid reaction window open ────────────
     socket.on('lights_out', () => {
-      // Flash each light off
-      for (let i = 0; i < 5; i++) {
-        const el = g('l' + i);
-        el.classList.add('off-flash');
-        setTimeout(() => { el.classList.remove('on'); el.classList.remove('off-flash'); }, 260);
-      }
-      // Only update if still armed (player hasn't jumped already)
+      // Instant off — no animation, just like real F1
+      for (let i = 0; i < 5; i++) g('l' + i).classList.remove('on');
       if (g('abtn').className === 'arm') btnArm('GO!');
     });
 
@@ -1196,7 +1167,7 @@
         const n = i + 1, pc = n === 1 ? 'p1' : n === 2 ? 'p2' : n === 3 ? 'p3' : '', me = e.username === ME;
         const d = document.createElement('div');
         d.className = 'slb-row';
-        d.innerHTML = `<div class="slb-pos ${pc}">P${n}</div><div class="slb-name${me ? ' me' : ''}">${esc(e.username)}${me ? ' ◂' : ''}</div><div class="slb-time">${e.bestTime}ms</div>`;
+        d.innerHTML = `<div class="slb-pos ${pc}">P${n}</div><div class="slb-name${me ? ' me' : ''}">${renderUNplain(e.username, e.isOwner)}${me ? ' ◂' : ''}</div><div class="slb-time">${e.bestTime}ms</div>`;
         body.appendChild(d);
       });
     });
@@ -1209,7 +1180,8 @@
       players.forEach(p => {
         const d = document.createElement('div');
         d.className = 'drv' + (p.id === socket.id ? ' me' : '');
-        d.innerHTML = `<div class="drv-dot"></div><div class="drv-name">${esc(p.username)}</div><div class="drv-badge">${p.id === hostId ? 'HST' : 'MBR'}</div>`;
+        const isRoomHost = p.id === hostId;
+        d.innerHTML = `<div class="drv-name">${renderUN(p.username, p.isOwner)}</div>${isRoomHost ? '<div class="drv-host-badge">HOST</div>' : ''}`;
         g('drvlist').appendChild(d);
       });
     }
@@ -1239,7 +1211,7 @@
         }
         const tr = document.createElement('tr');
         if (pos === 1 && fin) tr.className = 'p1';
-        tr.innerHTML = `<td>${posH}</td><td><div class="dname">${esc(r.username)}${me ? '<span class="metag">YOU</span>' : ''}</div></td><td><div class="rtime ${tCls}">${tDisp}</div></td><td><div class="delta ${dCls}">${dDisp}</div></td>`;
+        tr.innerHTML = `<td>${posH}</td><td><div class="dname">${renderUN(r.username, r.isOwner)}${me ? '<span class="metag" style="-webkit-text-fill-color:var(--red);background:none">YOU</span>' : ''}</div></td><td><div class="rtime ${tCls}">${tDisp}</div></td><td><div class="delta ${dCls}">${dDisp}</div></td>`;
         tbody.appendChild(tr);
       });
       g('t-clicked').textContent = results.length;
@@ -1253,6 +1225,18 @@
     g('hub-btn').addEventListener('click', () => location.href = '/');
     g('back-btn').addEventListener('click', () => location.href = '/');
   </script>
+
+  <!-- SERVER OFFLINE OVERLAY -->
+  <div id="offline-overlay">
+    <div class="off-border"></div>
+    <div class="off-icon">⬡</div>
+    <div class="off-title">SERVER OFFLINE</div>
+    <div class="off-sub">Connection to LAN0 lost</div>
+    <div class="off-reconnect">
+      <div class="off-dot"></div>Attempting to reconnect...
+    </div>
+    <div class="off-border"></div>
+  </div>
 </body>
 
 </html>

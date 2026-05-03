@@ -12,7 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ── logging ───────────────────────────────────────────────────────────────────
 const C = { r: '\x1b[0m', d: '\x1b[2m', g: '\x1b[32m', c: '\x1b[36m', y: '\x1b[33m', red: '\x1b[31m', w: '\x1b[37m', b: '\x1b[1m' };
-const ts = () => C.d + new Date().toTimeString().slice(0, 8) + C.r;
+const ts = () => { const n = new Date(); return C.d + n.toTimeString().slice(0, 8) + '.' + String(n.getMilliseconds()).padStart(3, '0') + C.r; };
 const L = {
   ok: m => console.log(`${ts()} ${C.g}[OK  ]${C.r} ${m}`),
   warn: m => console.log(`${ts()} ${C.y}[WARN]${C.r} ${m}`),
@@ -23,9 +23,16 @@ const L = {
 
 // ── username registry — Maps lc-username → socketId ──────────────────────────
 const userRegistry = new Map();
-function userTaken(lc) {
+function isLocalConnection(socket) {
+  const addr = socket.handshake.address;
+  return SERVER_IPS.has(addr);
+}
+
+function userTaken(lc, requestingSocketId) {
   const sid = userRegistry.get(lc);
-  return sid ? io.sockets.sockets.get(sid)?.connected === true : false;
+  if (!sid) return false;
+  if (sid === requestingSocketId) return false; // same socket re-claiming — always ok
+  return io.sockets.sockets.get(sid)?.connected === true;
 }
 function regUser(lc, sid) { userRegistry.set(lc, sid); }
 function freeUser(lc) { if (lc) userRegistry.delete(lc); }
@@ -48,6 +55,7 @@ function makeRoom(id, gameType, hostId, hostUsername) {
     hostId, hostUsername,
     players: [],
     state: 'lobby',          // lobby | starting | lights | ready | finished
+    roundNumber: 0,            // increments each time startGame is called
     lightsOut: false,
     lightsOutAt: null,
     clicked: new Set(),      // socketIds that have clicked this round
@@ -58,6 +66,7 @@ function makeRoom(id, gameType, hostId, hostUsername) {
     lightsTimer: null,      // setInterval ticking lights on
     goTimer: null,      // setTimeout for lights_out delay
     endTimer: null,      // setTimeout for auto-end
+    lightTimeouts: [],          // all individual light-on timeouts
     cleanupTimer: null,      // setTimeout for empty-room cleanup
   };
 }
@@ -68,6 +77,7 @@ function cancelGameTimers(r) {
   if (r.lightsTimer) { clearInterval(r.lightsTimer); r.lightsTimer = null; }
   if (r.goTimer) { clearTimeout(r.goTimer); r.goTimer = null; }
   if (r.endTimer) { clearTimeout(r.endTimer); r.endTimer = null; }
+  if (r.lightTimeouts) { r.lightTimeouts.forEach(clearTimeout); r.lightTimeouts = []; }
 }
 
 // Reset round-level fields without touching session leaderboard or players
@@ -78,6 +88,7 @@ function resetRound(r) {
   r.lightsOutAt = null;
   r.clicked = new Set();
   r.results = [];
+  r.lightTimeouts = [];
 }
 
 // ── broadcast helpers ─────────────────────────────────────────────────────────
@@ -85,13 +96,13 @@ const bcast = (rid, ev, data) => io.to(rid).emit(ev, data);
 
 function pushRoomState(rid) {
   const r = rooms[rid]; if (!r) return;
-  bcast(rid, 'room_state', { id: r.id, gameType: r.gameType, hostId: r.hostId, players: r.players, state: r.state });
+  bcast(rid, 'room_state', { id: r.id, gameType: r.gameType, hostId: r.hostId, players: r.players, state: r.state, roundNumber: r.roundNumber });
 }
 
 function pushRoomList() {
   io.emit('room_list', Object.values(rooms)
-    .filter(r => r.players.length >= 1 && r.state === 'lobby')
-    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
+    .filter(r => r.players.length >= 1)
+    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername, state: r.state, roundNumber: r.roundNumber })));
 }
 
 function pushPlayersList() {
@@ -100,7 +111,7 @@ function pushPlayersList() {
     if (!sock.connected || !sock.data?.username) continue;
     const rid = sock.data.roomId || null;
     const room = rid ? rooms[rid] : null;
-    list.push({ username: sock.data.username, roomId: rid, gameType: room?.gameType || null });
+    list.push({ username: sock.data.username, roomId: rid, gameType: room?.gameType || null, isOwner: sock.data.isOwner || false });
   }
   list.sort((a, b) => (!!a.roomId - !!b.roomId) || a.username.localeCompare(b.username));
   io.emit('players_list', list);
@@ -116,7 +127,7 @@ function updateSessionLB(rid, results) {
   results.forEach(res => {
     if (res.jump || res.dns || res.time === null) return;
     const e = r.sessionLeaderboard.find(x => x.username === res.username);
-    if (!e) r.sessionLeaderboard.push({ username: res.username, bestTime: res.time, runs: 1 });
+    if (!e) r.sessionLeaderboard.push({ username: res.username, isOwner: res.isOwner || false, bestTime: res.time, runs: 1 });
     else { if (res.time < e.bestTime) e.bestTime = res.time; e.runs++; }
   });
   r.sessionLeaderboard.sort((a, b) => a.bestTime - b.bestTime);
@@ -130,6 +141,7 @@ function startGame(rid) {
   // Reset round fields (cancels any stale timers from previous round)
   resetRound(r);
   r.state = 'starting';
+  r.roundNumber++;
 
   bcast(rid, 'game_starting');
   pushRoomList();   // room no longer in lobby
@@ -148,34 +160,47 @@ function startLights(rid) {
   const r = rooms[rid]; if (!r) return;
   r.state = 'lights';
   bcast(rid, 'lights_begin');
+  L.game(`Lights begin [${rid}]`);
 
-  let i = 0;
-  r.lightsTimer = setInterval(() => {
-    bcast(rid, 'light_on', { i });
-    i++;
-    if (i < 5) return;
+  // Each light comes on with a random delay between 900ms and 1100ms
+  // All delays decided upfront so they can be logged together
+  const gaps = Array.from({ length: 5 }, () => Math.round(900 + Math.random() * 200));
+  // Random hold delay after all lights on: 300ms to 2100ms
+  const holdDelay = Math.round(300 + Math.random() * 1800);
 
-    // All 5 lights on — stop interval, schedule random extinguish
-    clearInterval(r.lightsTimer);
-    r.lightsTimer = null;
+  L.game(`[${rid}] Light gaps: [${gaps.join(', ')}]ms — hold: ${holdDelay}ms`);
 
-    const delay = Math.round(600 + Math.random() * 2800);
-    r.goTimer = setTimeout(() => {
-      r.goTimer = null;
-      r.state = 'ready';
-      r.lightsOut = true;
-      r.lightsOutAt = Date.now();
-      bcast(rid, 'lights_out');
-      L.game(`GO [${rid}]`);
+  let accumulated = 0;
+  for (let i = 0; i < 5; i++) {
+    accumulated += gaps[i];
+    const lightIdx = i;
+    const t = setTimeout(() => {
+      bcast(rid, 'light_on', { i: lightIdx });
+      L.game(`[${rid}] Light ${lightIdx + 1}/5 ON (+${gaps[lightIdx]}ms)`);
 
-      // Auto-end after 3s if not everyone clicked
-      r.endTimer = setTimeout(() => {
-        r.endTimer = null;
-        endGame(rid);
-      }, 3000);
+      // After the last light, schedule the go signal
+      if (lightIdx === 4) {
+        r.goTimer = setTimeout(() => {
+          r.goTimer = null;
+          r.state = 'ready';
+          r.lightsOut = true;
+          r.lightsOutAt = Date.now();
+          L.game(`[${rid}] lightsOutAt=${r.lightsOutAt}ms epoch`);
+          bcast(rid, 'lights_out');
+          L.game(`[${rid}] LIGHTS OUT — GO! (held ${holdDelay}ms) @ ${Date.now()}ms epoch`);
 
-    }, delay);
-  }, 850);
+          r.endTimer = setTimeout(() => {
+            r.endTimer = null;
+            endGame(rid);
+          }, 3000);
+        }, holdDelay);
+        r.goTimer = r.goTimer; // already set above
+      }
+    }, accumulated);
+    // Store all light timeouts in the array
+    if (!r.lightTimeouts) r.lightTimeouts = [];
+    r.lightTimeouts.push(t);
+  }
 }
 
 function endGame(rid) {
@@ -188,7 +213,7 @@ function endGame(rid) {
   // DNS for anyone who never clicked
   r.players.forEach(p => {
     if (!r.clicked.has(p.id))
-      r.results.push({ id: p.id, username: p.username, time: null, jump: false, dns: true });
+      r.results.push({ id: p.id, username: p.username, isOwner: p.isOwner || false, time: null, jump: false, dns: true });
   });
 
   const sorted = r.results.slice().sort((a, b) => {
@@ -229,22 +254,43 @@ io.on('connection', socket => {
 
   // Send lobby room list on connect
   socket.emit('room_list', Object.values(rooms)
-    .filter(r => r.players.length >= 1 && r.state === 'lobby')
-    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
+    .filter(r => r.players.length >= 1)
+    .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername, state: r.state, roundNumber: r.roundNumber })));
 
   // ── claim_username ──────────────────────────────────────────────────────────
   socket.on('claim_username', ({ username }) => {
     const lc = username.toLowerCase();
-    if (userTaken(lc)) {
+    const isLocal = isLocalConnection(socket);
+
+    // If this username is the current ownerUsername, only local connections can claim it
+    if (ownerUsername && ownerUsername === lc && !isLocal) {
+      socket.emit('username_claim_result', { ok: false, reason: `"${lc}" is reserved for the server host.` });
+      return;
+    }
+
+    if (userTaken(lc, socket.id)) {
       socket.emit('username_claim_result', { ok: false, reason: `"${lc}" is already taken on this network.` });
       return;
     }
+
     if (socket.data.username) freeUser(socket.data.username);
     regUser(lc, socket.id);
     socket.data.username = lc;
-    socket.emit('username_claim_result', { ok: true, username: lc });
+    socket.data.isOwner = isLocal;
+
+    // First local connection to claim a username becomes the owner
+    if (isLocal && !ownerUsername) {
+      ownerUsername = lc;
+      L.ok(`Owner set: "${lc}"`);
+    }
+    // If this is the local machine re-claiming after a reconnect
+    if (isLocal && ownerUsername === lc) {
+      socket.data.isOwner = true;
+    }
+
+    socket.emit('username_claim_result', { ok: true, username: lc, isOwner: socket.data.isOwner });
     pushPlayersList();
-    L.ok(`claim "${lc}" ${socket.id.slice(0, 8)}`);
+    L.ok(`claim "${lc}" ${socket.id.slice(0, 8)}${socket.data.isOwner ? ' [OWNER]' : ''}`);
   });
 
   // ── create_room ─────────────────────────────────────────────────────────────
@@ -252,7 +298,7 @@ io.on('connection', socket => {
     const lc = username.toLowerCase();
     const id = makeCode();
     const r = makeRoom(id, gameType, socket.id, lc);
-    r.players.push({ id: socket.id, username: lc });
+    r.players.push({ id: socket.id, username: lc, isOwner: socket.data.isOwner || false });
     rooms[id] = r;
     socket.join(id);
     socket.data.roomId = id;
@@ -278,6 +324,7 @@ io.on('connection', socket => {
     if (existing) {
       const oldId = existing.id;
       existing.id = socket.id;
+      existing.isOwner = socket.data.isOwner || false;
       if (r.hostId === oldId) r.hostId = socket.id;
       if (r.clicked.has(oldId)) { r.clicked.delete(oldId); r.clicked.add(socket.id); }
       regUser(lc, socket.id);
@@ -296,10 +343,11 @@ io.on('connection', socket => {
     if (socket.data.username !== lc)
       return socket.emit('join_error', 'Username mismatch. Please refresh.');
 
-    if (r.state !== 'lobby')
-      return socket.emit('join_error', 'Game already in progress.');
+    // Allow joining in lobby or finished (between rounds); block if round actively running
+    if (r.state === 'starting' || r.state === 'lights' || r.state === 'ready')
+      return socket.emit('join_error', 'Round in progress — wait for it to finish.');
 
-    r.players.push({ id: socket.id, username: lc });
+    r.players.push({ id: socket.id, username: lc, isOwner: socket.data.isOwner || false });
     socket.join(roomId);
     socket.data.roomId = roomId;
     socket.data.username = lc;
@@ -331,15 +379,15 @@ io.on('connection', socket => {
 
     if (!r.lightsOut) {
       // Jump start
-      r.results.push({ id: socket.id, username: socket.data.username, time: null, jump: true, dns: false });
+      r.results.push({ id: socket.id, username: socket.data.username, isOwner: socket.data.isOwner || false, time: null, jump: true, dns: false });
       socket.emit('you_jumped');
       L.warn(`Jump [${r.id}] ${socket.data.username}`);
     } else {
       // Valid reaction
       const ms = Date.now() - r.lightsOutAt;
-      r.results.push({ id: socket.id, username: socket.data.username, time: ms, jump: false, dns: false });
+      r.results.push({ id: socket.id, username: socket.data.username, isOwner: socket.data.isOwner || false, time: ms, jump: false, dns: false });
       socket.emit('your_time', { time: ms });
-      L.game(`Click [${r.id}] ${socket.data.username} ${ms}ms`);
+      L.game(`Click [${r.id}] ${socket.data.username} reaction=${ms}ms @ ${Date.now()}ms epoch`);
     }
 
     // If everyone has clicked, end immediately (with small delay for last event to land)
@@ -361,11 +409,25 @@ io.on('connection', socket => {
     L.room(`PlayAgain [${r.id}]`);
   });
 
+  // ── get_players_list ────────────────────────────────────────────────────────
+  socket.on('get_players_list', () => {
+    // Build and send players list to just this socket
+    const list = [];
+    for (const [, sock] of io.sockets.sockets) {
+      if (!sock.connected || !sock.data?.username) continue;
+      const rid = sock.data.roomId || null;
+      const room = rid ? rooms[rid] : null;
+      list.push({ username: sock.data.username, roomId: rid, gameType: room?.gameType || null, isOwner: sock.data.isOwner || false });
+    }
+    list.sort((a, b) => (!!a.roomId - !!b.roomId) || a.username.localeCompare(b.username));
+    socket.emit('players_list', list);
+  });
+
   // ── get_room_list ───────────────────────────────────────────────────────────
   socket.on('get_room_list', () => {
     socket.emit('room_list', Object.values(rooms)
-      .filter(r => r.players.length >= 1 && r.state === 'lobby')
-      .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername })));
+      .filter(r => r.players.length >= 1)
+      .map(r => ({ id: r.id, gameType: r.gameType, playerCount: r.players.length, hostUsername: r.hostUsername, state: r.state, roundNumber: r.roundNumber })));
   });
 
   // ── disconnect ──────────────────────────────────────────────────────────────
@@ -408,11 +470,20 @@ io.on('connection', socket => {
 
 // ── start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
+// Server-local IPs — connections from these are eligible to be the owner
+const SERVER_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
+let ownerUsername = null;  // username claimed by the host machine
+
 server.listen(PORT, '0.0.0.0', () => {
   let lan = 'localhost';
   for (const ifaces of Object.values(os.networkInterfaces()))
     for (const iface of ifaces)
-      if (iface.family === 'IPv4' && !iface.internal) { lan = iface.address; break; }
+      if (iface.family === 'IPv4' && !iface.internal) {
+        lan = iface.address;
+        SERVER_IPS.add(iface.address);
+        SERVER_IPS.add('::ffff:' + iface.address);
+        break;
+      }
 
   console.log(`\n${C.b}${C.w}  ██╗      █████╗ ███╗   ██╗ ██████╗${C.r}`);
   console.log(`${C.b}${C.w}  ██║     ██╔══██╗████╗  ██║██╔═████╗${C.r}`);
